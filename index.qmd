@@ -1,0 +1,1080 @@
+---
+title: "Yale Myers Forest - Wood Frog Pop Gen Analyses"
+author: "Dylan Padilla"
+institute: "Yale School of the Environment, Yale University, New Haven, CT 06511"
+format: html
+---
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## loading packages
+
+library(adegenet)
+library(ade4)
+library(car)
+library(canadamaps)
+library(data.table)
+library(dartRverse)
+library(ecodist)
+library(GenomicRanges)
+library(hierfstat)
+library(LEA)
+library(leaflet)
+library(lfmm)
+library(maps)
+library(mapplots)
+library(mapproj)
+library(rnaturalearth)
+library(pegas)
+library(poppr)
+library(prettymapr)
+library(qqman)
+library(qvalue)
+library(reshape2)
+library(sf)
+library(scales)
+library(SeqArray)
+library(SeqVarTools)
+library(shape)
+library(SNPRelate)
+library(stringr)
+library(tigris)
+library(OutFLANK)
+library(vcfR)
+library(xtable)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## loading project
+
+load("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_genind_chr_pos.RData")
+metadata <- read.csv("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/YMF2018_RASYpopgen_sampleinfo.csv", row.names = 1)
+##load("/gpfs/gibbs/project/skelly/dp996/YMF2018/data/aRanSyl_gl_chr_pos.RData")
+
+aRanSyl_rows <- rownames(aRanSyl_genind$tab)
+##aRanSyl_rows
+aRanSyl_rows[-203] <- gsub(paste0("_S", ".*"), "", aRanSyl_rows[-203])
+aRanSyl_rows[203] <- "YNL_SCP2016_325"
+aRanSyl_rows <- data.frame(match.col = aRanSyl_rows)
+
+metadata$match.col <- paste(metadata$Pop, metadata$Extract, sep = "_")
+metadata$match.col[260:263] <- paste("YNL_", metadata$match.col[260:263], sep = "")
+metadata$match.col[3:48] <- gsub("(_)(.)", "\\10\\2", metadata$match.col[3:48])
+##metadata$match.col
+
+## cleaning 'meta' to ensure exactly one record per 'match.col'
+## this prevents the row count from expanding if meta has duplicate IDs
+meta_unique <- metadata[!duplicated(metadata$match.col), ]
+##meta_unique$match.col
+
+## perform a Left Join
+## 'all.x = TRUE' ensures we keep all 205 rows from aRanSyl_rows
+#merged.tab <- merge(aRanSyl_rows, meta_unique, by = "match.col", all.x = TRUE)
+merged.tab <- merge(aRanSyl_rows, meta_unique, by = "match.col", all.x = FALSE)
+str(merged.tab)
+##merged.tab
+#write.csv(merged.tab, file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/YMF2018_metadata_Mar-20-26.csv", row.names = FALSE)
+
+## I have to remove the second and third sample of the genind object
+## because I cannot find them in the metadata
+ind.rm <- c("YMF2018_026_S23_R1_001", "YMF2018_035_S47_R1_001")
+aRanSyl_genind_pruned <- indNames(aRanSyl_genind)[!indNames(aRanSyl_genind) %in% ind.rm]
+##aRanSyl_genind_pruned
+
+aRanSyl_genind <- aRanSyl_genind[aRanSyl_genind_pruned, ]
+aRanSyl_genind
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## Converting genlight object to geno object
+
+##gl2geno(aRanSyl_gl, outfile = "aRanSyl_geno",
+##outpath = "/gpfs/gibbs/project/skelly/dp996/YMF2018/data/", verbose = NULL)
+
+
+## Run snmf algorithm
+
+##snmf1 <- snmf("/gpfs/gibbs/project/skelly/dp996/YMF2018/data/aRanSyl_geno.geno",
+##             K = 1:10, # number of K ancestral populations to run
+##             repetitions = 50, # 50 repetitions for each K
+##             entropy = TRUE, # calculate cross-entropy
+##             project = "new")
+
+snmf1 <- load.snmfProject("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_geno.snmfProject")
+
+
+## extract the cross-entropy of all runs where K = 1
+
+ce <- cross.entropy(snmf1, K = 1)
+ce2 <- cross.entropy(snmf1, K = 2)
+##ce
+
+## find the run with the lowest cross-entropy
+
+lowest.ce <- which.min(ce)
+lowest.ce2 <- which.min(ce2)
+##lowest.ce
+
+## extract Q-matrix for the best run
+
+qmatrix <- as.data.frame(Q(snmf1, K = 1, run = lowest.ce))
+qmatrix2 <- as.data.frame(Q(snmf1, K = 2, run = lowest.ce2))
+##head(qmatrix)
+
+## because I removed samples 2 and 3 from the genind object,
+## I have to remove rows 2 and 3 of the qmatrix
+qmatrix <- qmatrix[-c(2, 3), ]
+qmatrix2 <- qmatrix2[-c(2, 3), ]
+##qmatrix
+
+aRanSyl_genind$pop <- as.factor(merged.tab$Pond)
+summary(aRanSyl_genind$pop)
+##aRanSyl_genind$pop
+
+## some of the ponds contain less than 5 individuals.
+## I am only keeping ponds with >= 5 individuals
+
+tab <- data.frame(ind = summary(aRanSyl_genind$pop))
+tab$pop <- rownames(tab)
+tab.pruned <- tab[tab$ind >= 5, ]
+
+aRanSyl_genind_pops <- popsub(aRanSyl_genind, sublist = tab.pruned$pop)
+aRanSyl_genind_pops
+
+## the number of alleles per locus seems to range from 1 to 2
+## we have to work with only biallelic loci, so there should always be 2
+
+n <- names(which(nAll(aRanSyl_genind_pops) == 2))
+aRanSyl_genind_pops <- aRanSyl_genind_pops[loc = n]
+aRanSyl_genind_pops
+##rownames(aRanSyl_genind_pops$tab)
+
+ind.rm2 <- data.frame(match.col = gsub(paste0("_S", ".*"), "",
+                                       rownames(aRanSyl_genind_pops$tab)))
+merged.tab2 <- merge(merged.tab, ind.rm2, by = "match.col")
+##cbind(merged.tab2$match.col, rownames(aRanSyl_genind_pops$tab))
+str(merged.tab2)
+
+##save(aRanSyl_genind_pops,
+##     file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_genind_pos_pops.Rdata")
+
+
+## because I ended up removing more individuals from the dataset,
+## now I have to make sure I remove the same individuals from the
+## qmatrix table.  Practically, I do not have to do this because
+## in this particular case, every individual has exactly the same
+## genetic ancestry.  But it is still a good practice to remove
+## the right individuals from the qmatrix table.  This is because
+## if there were a strong population structure, the individuals
+## you remove from the qmatrix (i.e., each row) DO MATTER!
+
+tab.rm1 <- data.frame(ind = rownames(aRanSyl_genind$tab),
+                      qmatrix = qmatrix)
+tab.rm1.1 <- data.frame(ind = rownames(aRanSyl_genind$tab),
+                      qmatrix = qmatrix2)
+
+tab.rm2 <- data.frame(ind = rownames(aRanSyl_genind_pops$tab),
+                      pop = aRanSyl_genind_pops$pop)
+tab.rm2.1 <- data.frame(ind = rownames(aRanSyl_genind_pops$tab),
+                      pop = aRanSyl_genind_pops$pop)
+
+## the merging below guarantees that I am removing the correct
+## individuals from the qmatrix
+tab2 <- merge(tab.rm2, tab.rm1, by = "ind")
+tab2.1 <- merge(tab.rm2.1, tab.rm1.1, by = "ind")
+str(tab2)
+str(tab2.1)
+qmplot <- tab2
+qmplot2 <- tab2.1
+qmplot$pop <- as.character(qmplot$pop)
+qmplot2$pop <- as.character(qmplot2$pop)
+str(qmplot)
+str(qmplot2)
+qmplot <- qmplot[order(qmplot$pop), ]
+qmplot2 <- qmplot2[order(qmplot2$pop), ]
+##aggregate(qmplot$ind, list(qmplot$pop), length)
+
+
+
+```
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## plotting entropy to determine K
+
+
+par(mgp = c(3.2, 1, 0))
+plot(snmf1, col = "black", cex = 1.5, pch = 19, las = 1)
+Arrows(x = 1, y = 0.490, x1 = 1, y1 = 0.495, col = "black",
+       arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2)
+
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## computing pairwise Fst test
+
+##aRanSyl_fst <- genet.dist(aRanSyl_genind_pops, method = "WC84") %>% round(digits = 3)
+## saving here just in case the commands below fail
+##save(aRanSyl_fst,
+##     file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_fst.RData")
+
+
+## plotting admixture proportions and genetic differentiation
+
+layout(matrix(c(1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1,
+                2, 2, 2, 2, 2, 2,
+                2, 2, 2, 2, 2, 2), ncol = 6, nrow = 4, byrow = TRUE))
+
+
+barplot(t(qmplot[3]), col = "gray", border = "white", space = 0,
+        xlab = "", xaxt = "n",  ylab = "Admixture proportion",
+        las = 1, cex.lab = 1.4)
+
+## adding population labels to the axis:
+
+medians <- c()
+
+for(i in 1:length(qmplot$pop)){
+    
+    axis(1, at = median(which(qmplot$pop == qmplot$pop[i])), labels = "")
+    medians <- c(medians, median(which(qmplot$pop == qmplot$pop[i])))
+}
+
+names <- unique(qmplot$pop)
+
+obj <- tapply(qmplot$ind, qmplot$pop, length)
+obj
+
+segments(x0 = 0, y0 = 0.01,
+         x1 = 0, y1 = 1, lty = 2, lwd = 2)
+
+for(i in 1:length(obj)){
+    sum <- sum(obj[1:i])
+    ##print(sum)
+    segments(x0 = sum, y0 = 0.01,
+             x1 = sum, y1 = 1, lty = 2, lwd = 2)
+}
+
+text(x = as.numeric(unique(as.character(medians))), y = par("usr")[3] - 0.06,
+     labels = unique(qmplot$pop), xpd = NA, srt = 35, cex = 0.5, adj = 1)
+
+mtext("Pond", side = 1, line = 2)
+
+load("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_fst.RData")
+aRanSyl_fst_mat <- as.matrix(aRanSyl_fst)
+aRanSyl_fst_mat[aRanSyl_fst_mat < 0] <- 0
+aRanSyl_fst_mat[1:4, 1:4]
+
+## creating heatmap to plot genetic differentiation between
+## populations
+
+get_lower_tri<-function(cor_matrix){
+  cor_matrix[lower.tri(cor_matrix, diag = TRUE)]
+  return(cor_matrix)
+}
+
+lower_tri_matrix <- aRanSyl_fst_mat[lower.tri(round(aRanSyl_fst_mat, 2),
+                                              diag = TRUE)]
+my_palette <- colorRampPalette(c("lightblue", "red"))(n = 100)
+
+## create matrix
+
+fst_matrix <- matrix(NA, nrow = 19, ncol = 19)
+fst_matrix[lower.tri(fst_matrix, diag = TRUE)] <- round(lower_tri_matrix, 2)
+labs <- colnames(aRanSyl_fst_mat)
+
+par(mar = c(5, 5, 2, 2))
+
+## creating the image
+## we transform the matrix so it looks like the table (Row 1 at top)
+## t() transposes it, and we reverse the columns to flip the y-axis
+
+grid_data <- t(fst_matrix[nrow(fst_matrix):1, ])
+
+## generate the heatmap colors
+
+my_colors <- colorRampPalette(c("#8ccddb", "#bf6c6c", "red"))(100)
+
+image(
+  1:19, 1:19,           # X and Y coordinates
+  grid_data,          # The data
+  axes = FALSE,       # Turn off default axes (we will draw our own)
+  col = my_colors,    # Colors
+  xlab = "", ylab = ""
+)
+
+axis(2, at = 1:19, labels = rev(labs), las = 2,
+     tick = FALSE, cex.axis = 0.6)
+axis(1, at = 1:19, labels = labs, las = 2, tick = FALSE,
+     cex.axis = 0.6, las = 1)
+
+## we loop through the original matrix to place the numbers
+
+n <- 19
+for (row in 1:n) {
+  for (col in 1:n) {
+    val <- fst_matrix[row, col]
+    
+    if (!is.na(val)) {
+      # Logic: 
+      # x coordinate = column index
+      # y coordinate = n + 1 - row index (because y=1 is the bottom)
+      text(x = col, y = n + 1 - row, labels = val, col = "black", cex = 0.6)
+    }
+  }
+}
+
+## legend settings
+
+leg_x <- 15.5       # X starting position
+leg_y <- 15.0       # Y starting position (bottom of legend)
+leg_w <- 0.5       # Width of the bar
+leg_h <- 2.5       # Height of the bar
+num_cols <- length(my_colors)
+
+## draw the gradient Bar
+## we stack tiny rectangles on top of each other
+
+for (i in 1:num_cols) {
+  y_start <- leg_y + (i - 1) * (leg_h / num_cols)
+  y_end   <- leg_y + (i) * (leg_h / num_cols)
+  rect(
+    xleft = leg_x, 
+    ybottom = y_start, 
+    xright = leg_x + leg_w, 
+    ytop = y_end, 
+    col = my_colors[i], 
+    border = NA
+  )
+}
+
+## add a black border around the legend bar
+
+rect(leg_x, leg_y, leg_x + leg_w, leg_y + leg_h, border = "black")
+
+## add Legend Text Labels (0, 0.5, 1.0)
+## we map the data range (0 to 0.83) to the legend height
+
+min_val <- 0
+max_val <- max(fst_matrix, na.rm=TRUE) # approx 0.83
+
+## label position 1 (Bottom)
+
+text(x = leg_x + leg_w + 0.2, y = leg_y, labels = min_val,
+     adj = 0, cex = 0.8)
+
+## label position 2 (Middle)
+
+text(x = leg_x + leg_w + 0.2, y = leg_y + (leg_h / 2),
+     labels = round((max_val/2), 2), adj = 0, cex = 0.8)
+
+## label position 3 (Top)
+
+text(x = leg_x + leg_w + 0.2, y = leg_y + leg_h,
+     labels = max_val, adj = 0, cex = 0.8)
+
+## add Title above legend
+
+text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
+     labels = expression(italic(F[st])), font = 2, cex = 1)
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## This is what would happen if we select K = 2 in the strcuture analysis
+
+layout(matrix(c(1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1,
+                2, 2, 2, 2, 2, 2,
+                2, 2, 2, 2, 2, 2), ncol = 6, nrow = 4, byrow = TRUE))
+
+
+barplot(t(qmplot2[3:4]), col = c("gray", "brown"), border = "white", space = 0,
+        xlab = "", xaxt = "n",  ylab = "Admixture proportion",
+        las = 1, cex.lab = 1.4)
+
+## adding population labels to the axis:
+
+medians <- c()
+
+for(i in 1:length(qmplot2$pop)){
+    
+    axis(1, at = median(which(qmplot2$pop == qmplot2$pop[i])), labels = "")
+    medians <- c(medians, median(which(qmplot2$pop == qmplot2$pop[i])))
+}
+
+names <- unique(qmplot2$pop)
+
+obj <- tapply(qmplot2$ind, qmplot2$pop, length)
+obj
+
+segments(x0 = 0, y0 = 0.01,
+         x1 = 0, y1 = 1, lty = 2, lwd = 2)
+
+for(i in 1:length(obj)){
+    sum <- sum(obj[1:i])
+    ##print(sum)
+    segments(x0 = sum, y0 = 0.01,
+             x1 = sum, y1 = 1, lty = 2, lwd = 2,
+             col = "blue")
+}
+
+text(x = as.numeric(unique(as.character(medians))), y = par("usr")[3] - 0.06,
+     labels = unique(qmplot2$pop), xpd = NA, srt = 35, cex = 0.5, adj = 1)
+
+mtext("Pond", side = 1, line = 2)
+
+load("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_fst.RData")
+aRanSyl_fst_mat <- as.matrix(aRanSyl_fst)
+aRanSyl_fst_mat[aRanSyl_fst_mat < 0] <- 0
+aRanSyl_fst_mat[1:4, 1:4]
+
+## creating heatmap to plot genetic differentiation between
+## populations
+
+get_lower_tri<-function(cor_matrix){
+  cor_matrix[lower.tri(cor_matrix, diag = TRUE)]
+  return(cor_matrix)
+}
+
+lower_tri_matrix <- aRanSyl_fst_mat[lower.tri(round(aRanSyl_fst_mat, 2),
+                                              diag = TRUE)]
+my_palette <- colorRampPalette(c("lightblue", "red"))(n = 100)
+
+## create matrix
+
+fst_matrix <- matrix(NA, nrow = 19, ncol = 19)
+fst_matrix[lower.tri(fst_matrix, diag = TRUE)] <- round(lower_tri_matrix, 2)
+labs <- colnames(aRanSyl_fst_mat)
+
+par(mar = c(5, 5, 2, 2))
+
+## creating the image
+## we transform the matrix so it looks like the table (Row 1 at top)
+## t() transposes it, and we reverse the columns to flip the y-axis
+
+grid_data <- t(fst_matrix[nrow(fst_matrix):1, ])
+
+## generate the heatmap colors
+
+my_colors <- colorRampPalette(c("#8ccddb", "#bf6c6c", "red"))(100)
+
+image(
+  1:19, 1:19,           # X and Y coordinates
+  grid_data,          # The data
+  axes = FALSE,       # Turn off default axes (we will draw our own)
+  col = my_colors,    # Colors
+  xlab = "", ylab = ""
+)
+
+axis(2, at = 1:19, labels = rev(labs), las = 2,
+     tick = FALSE, cex.axis = 0.6)
+axis(1, at = 1:19, labels = labs, las = 2, tick = FALSE,
+     cex.axis = 0.6, las = 1)
+
+## we loop through the original matrix to place the numbers
+
+n <- 19
+for (row in 1:n) {
+  for (col in 1:n) {
+    val <- fst_matrix[row, col]
+    
+    if (!is.na(val)) {
+      # Logic: 
+      # x coordinate = column index
+      # y coordinate = n + 1 - row index (because y=1 is the bottom)
+      text(x = col, y = n + 1 - row, labels = val, col = "black", cex = 0.6)
+    }
+  }
+}
+
+## legend settings
+
+leg_x <- 15.5       # X starting position
+leg_y <- 15.0       # Y starting position (bottom of legend)
+leg_w <- 0.5       # Width of the bar
+leg_h <- 2.5       # Height of the bar
+num_cols <- length(my_colors)
+
+## draw the gradient Bar
+## we stack tiny rectangles on top of each other
+
+for (i in 1:num_cols) {
+  y_start <- leg_y + (i - 1) * (leg_h / num_cols)
+  y_end   <- leg_y + (i) * (leg_h / num_cols)
+  rect(
+    xleft = leg_x, 
+    ybottom = y_start, 
+    xright = leg_x + leg_w, 
+    ytop = y_end, 
+    col = my_colors[i], 
+    border = NA
+  )
+}
+
+## add a black border around the legend bar
+
+rect(leg_x, leg_y, leg_x + leg_w, leg_y + leg_h, border = "black")
+
+## add Legend Text Labels (0, 0.5, 1.0)
+## we map the data range (0 to 0.83) to the legend height
+
+min_val <- 0
+max_val <- max(fst_matrix, na.rm=TRUE) # approx 0.83
+
+## label position 1 (Bottom)
+
+text(x = leg_x + leg_w + 0.2, y = leg_y, labels = min_val,
+     adj = 0, cex = 0.8)
+
+## label position 2 (Middle)
+
+text(x = leg_x + leg_w + 0.2, y = leg_y + (leg_h / 2),
+     labels = round((max_val/2), 2), adj = 0, cex = 0.8)
+
+## label position 3 (Top)
+
+text(x = leg_x + leg_w + 0.2, y = leg_y + leg_h,
+     labels = max_val, adj = 0, cex = 0.8)
+
+## add Title above legend
+
+text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
+     labels = expression(italic(F[st])), font = 2, cex = 1)
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## calculating heterozygosity per site
+
+aRanSyl_he <- basic.stats(aRanSyl_genind_pops, diploid = TRUE)
+he_aRanSyl <- apply(aRanSyl_he$Ho, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
+    round(digits = 2)
+
+
+## calculating inbreeding coefficient (Fis)
+
+aRanSyl_Fis <- apply(aRanSyl_he$Fis, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
+    round(digits = 3)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, include = FALSE}
+
+## plotting
+
+mp <- barplot(he_aRanSyl, ylim = c(0, 0.2), las = 1,
+              ylab = "Observed heterozygocity", xaxt = "n")
+
+mp2 <- barplot(aRanSyl_Fis, ylim = c(0, 0.2), las = 1,
+              ylab = expression("Inbreeding coefficient"~(F[IS])), xaxt = "n")
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+barplot(he_aRanSyl, ylim = c(0, 0.2), las = 1,
+        ylab = "Observed heterozygocity", xaxt = "n",
+        col = "white", yaxt = "n", border = FALSE)
+
+grid()
+par(new = TRUE)
+
+barplot(he_aRanSyl, ylim = c(0, 0.2), las = 1,
+        xaxt = "n", ylab = "")
+
+box()
+axis(side = 1, at = mp, labels = names(he_aRanSyl), cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+barplot(aRanSyl_Fis, ylim = c(0, 0.10), las = 1,
+        ylab = expression("Inbreeding coefficient"~(F[IS])), xaxt = "n",
+        col = "white", yaxt = "n", border = FALSE)
+
+grid()
+par(new = TRUE)
+
+barplot(aRanSyl_Fis, ylim = c(0, 0.10), las = 1,
+        xaxt = "n", ylab = "")
+
+box()
+axis(side = 1, at = mp2, labels = names(aRanSyl_Fis), cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## running OutFLANK using dartR wrapper script
+outflnk <- gl.outflank(aRanSyl_genind_pops, qthreshold = 0.05, plot = FALSE)
+
+## extracting OutFLANK results
+outflnk.df <- outflnk$outflank$results
+
+## removing duplicated rows for each SNP locus
+rowsToRemove <- seq(1, nrow(outflnk.df), by = 2)
+outflnk.df <- outflnk.df[-rowsToRemove, ]
+
+## printing number of outliers (TRUE)
+outflnk.df$OutlierFlag %>% summary
+
+## extracting outlier IDs
+outlier_indexes <- which(outflnk.df$OutlierFlag == TRUE)
+outlierID <- locNames(aRanSyl_genind_pops)[outlier_indexes]
+##outlierID
+
+# converting Fsts <0 to zero
+outflnk.df$FST[outflnk.df$FST < 0] <- 0 
+
+# Italic labels
+fstlab <- expression(italic("F")[st])
+hetlab <- expression(italic("H")[e])
+
+## plot He versus Fst
+
+ggplot(data = outflnk.df) +
+  geom_point(aes(x = He, y = FST, colour = OutlierFlag)) +
+    scale_colour_manual(values = c("black","red"),
+                        labels = c("Neutral SNP","Outlier SNP"))+
+  ggtitle("OutFLANK outlier test") + xlab(hetlab) + ylab(fstlab) +
+  theme(legend.title = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 15,
+                                  face = "bold"))
+
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## Genotype-environment association analysis
+
+env <- read.csv("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/YMF_PondLevelData_DescriptiveInformation.csv")
+##str(env)
+names(env)[1] <- "Pond"
+
+str(merged.tab2)
+length(merged.tab2$match.col)
+merged.tab3 <- merge(merged.tab2, env[-c(8, 9)], by = "Pond")
+str(merged.tab3)
+length(merged.tab3$match.col)
+
+rm.pop <- merged.tab2[!merged.tab2$Pond %in% merged.tab3$Pond, ]
+rm.pop <- rm.pop$Pond[1]
+
+aRanSyl_genind_pops2 <- popsub(gid = aRanSyl_genind_pops,
+                               exclude = rm.pop)
+aRanSyl_genind_pops2
+
+n <- names(which(nAll(aRanSyl_genind_pops2) == 2))
+aRanSyl_genind_pops2 <- aRanSyl_genind_pops2[loc = n]
+aRanSyl_genind_pops2
+
+## we have to make sure that the order of the rows in
+## the genind$tab object is the same order of the rows
+## observed in the merged.tab3 table
+
+merged.tab3$match.col <- as.factor(merged.tab3$match.col)
+##str(merged.tab3)
+
+test <- merged.tab3[order(merged.tab3$match.col), ]
+head(data.frame(test$match.col, rownames(aRanSyl_genind_pops2$tab)))
+tail(data.frame(test$match.col, rownames(aRanSyl_genind_pops2$tab)))
+ 
+merged.tab3 <- merged.tab3[order(merged.tab3$match.col), ]
+merged.tab3$samples_genind <- rownames(aRanSyl_genind_pops2$tab)
+##names(merged.tab3)
+
+## we’ll use a simple approach to imputing missing genotype values:
+## we will impute using the most common genotype at each SNP across
+## all individuals
+
+x <- apply(aRanSyl_genind_pops2$tab, 2,
+           function(x) replace(x, is.na(x),
+                               as.numeric(names(which.max(table(x))))))
+
+##x <- tab(aRanSyl_genind_pops, NA.method = "mean")
+x[1:5, 1:5]
+
+snppca <- as.data.frame(x)
+snppca[1:10, 1:10]
+
+
+## genotypes and environmental data are in the same order
+
+identical(rownames(snppca), merged.tab3$samples_genind)
+
+## adding more variables
+
+df <- read.table("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/sampleData.allPonds.combined.tsv", sep = "\t", header = TRUE)
+##str(df)
+df$sampleName <- as.factor(df$sampleName)
+names(df)[1] <- "match.col"
+df <- df[!duplicated(df$match.col), ]
+head(df)
+
+## adding data from of temperature from Gahm et. al., (2020)
+df$temp[df$Pond == "CPS"] <- 14.63434786
+df$temp[df$Pond == "DE"] <- 16.90162425
+df$temp[df$Pond == "LO"] <- 15.41743489
+df$temp[df$Pond == "MI"] <- 11.30101444
+
+tapply(df$temp, df$Pond, mean)
+
+test <- merge(df[c(1, 9)], merged.tab3, by = "match.col")
+ 
+##str(test)
+test$match.col <- droplevels(test$match.col)
+##test$temp
+
+X.env <- merged.tab3[c(17, 18, 22, 47, 64)]
+X.env$temp <- test$temp
+##str(X.env)
+
+
+## latent factor GEA model
+
+mod_lfmm <- LEA::lfmm2(input = snppca, 
+                      env = scale(X.env[1:5]), 
+                      K = 1, 
+                      effect.sizes = TRUE)
+## get environmental effect sizes
+
+B <- mod_lfmm@B
+
+pv <- lfmm2.test(mod_lfmm, 
+                input = snppca, 
+                env = scale(X.env[1:5]), 
+                full = TRUE)
+
+## define candidate loci for GO analysis
+candidates <-  -log10(pv$pvalue) > 5
+(adaptive.snps <- colnames(snppca)[which(-log10(pv$pvalue) > 5)])
+##write.table(as.data.frame(adaptive.snps),
+##            file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_adaptive_snps.txt",
+##            col.names = FALSE, row.names = FALSE)
+
+
+## how many candidate loci?
+
+sum(candidates)
+length(adaptive.snps)
+
+
+## we have to determine the position of the adaptive loci
+
+(adaptive.snps <- colnames(snppca)[which(-log10(pv$pvalue) > 5)])
+aRanSyl_genind_pops2
+
+all.loc <- data.frame(ID = colnames(snppca),
+                      pvalues = as.numeric(pv$pvalues))
+head(all.loc)
+tail(all.loc)
+all.loc$ID <- gsub("\\..*", "", all.loc$ID)
+head(all.loc)
+dim(all.loc)
+
+adaptive.snps <- gsub("\\..*", "", adaptive.snps)
+adaptive.snps <- unique(adaptive.snps)
+##adaptive.snps
+
+vcf_data <- read.vcfR("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_copy_snps.vcf.gz",
+                      verbose = FALSE)
+fix_data <- as.data.frame(vcf_data@fix)
+head(fix_data)
+tail(fix_data)
+class(fix_data)
+
+## positions
+
+loc1 <- fix_data[fix_data$ID == adaptive.snps[1], ]
+loc1
+loc2 <- fix_data[fix_data$ID == adaptive.snps[2], ]
+loc2
+loc3 <- fix_data[fix_data$ID == adaptive.snps[3], ]
+loc3
+
+
+## map the positions onto gff file
+
+gff <- read.delim("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/aRanSyl-PopGen/data/aRansyl_genome.gff", header = FALSE, sep = "\t")
+str(gff)
+colnames(gff) <- c("CHROM", "Source", "Type", "Start", "End",
+                   "Score", "Strand", "Phase", "Attributes")
+head(gff)
+
+gff.genes <- gff[gff$Type == "gene", ]
+str(gff.genes)
+
+loc1$POS
+gff.genes[gff.genes$Start == 694576498, ] ## gene Rab28, snp POS falls
+                                           ## between 694576498 and 694764569
+##loc2$CHROM
+##unique(gff.genes$CHROM)
+##aRanSyl_genind_pops2$tab[ , "loc14587_pos52.0"]
+
+```
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## Manhattan plot
+
+## setting up data for plotting manhattan plot
+
+all.loc <- data.frame(ID = colnames(snppca),
+                      pvalues = as.numeric(pv$pvalues))
+head(all.loc)
+tail(all.loc)
+
+unique.all.loc <- data.frame()
+unique.all.loc <- all.loc[seq(1, nrow(all.loc), 2), ]
+head(unique.all.loc)
+
+unique.all.loc$ID <- gsub("\\..*", "", unique.all.loc$ID)
+##head(unique.all.loc)
+
+fix_data2 <- merge(fix_data[c(1, 2, 3)], unique.all.loc, by = "ID")
+fix_data2 <- fix_data2[order(fix_data2$CHROM), ]
+
+man <- fix_data2
+colnames(man) <- c("SNP", "CHR", "BP", "P")
+head(man)
+man$CHR <- as.numeric(factor(man$CHR))
+man$BP <- as.numeric(factor(man$BP))
+man <- man[man$CHR %in% c(1:13), ]
+##str(man)
+
+loc <- man[man$SNP == "loc14587_pos52", ]
+
+## plotting manhattan plot
+
+par(mgp = c(2.7, 1, 0))
+manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", xaxt = "n",
+          ylim = c(0, 15), type = "n", cex.axis = 0.8, cex = 0.5,
+          genomewideline = FALSE)
+grid()
+par(new = TRUE)
+
+manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", ylim = c(0, 15),
+          yaxt = "n", ylab = "", xlab = "", cex.axis = 0.6, cex = 0.5,
+          genomewideline = FALSE)
+Arrows(x0 = loc$BP, y0 = 7, x1 = loc$BP, y1 = 9, col = "red",
+       arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2)
+text(x = loc$BP, y = 10, labels = "Rab28", cex = 0.6, col = "red")
+box()
+
+
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## let's see how the frequency of the alt allele (Rab28)
+## changes across ponds
+
+allele_freqs <- as.data.frame(tab(aRanSyl_genind_pops2, freq = TRUE, NA.method = "mean"))
+allele_freqs[1:5, 1:5]
+cols_to_remove <- grep(".0", names(allele_freqs))
+##print(cols_to_remove)
+alt_allele_freqs <- allele_freqs[ , -cols_to_remove]
+##str(alt_allele_freqs)
+
+alt_allele_freqs$pop <- aRanSyl_genind_pops2$pop
+alt_allele_freqs$ind <- rownames(alt_allele_freqs)
+##str(alt_allele_freq)
+
+allele_freqs_melted <- melt(alt_allele_freqs, id.vars = c("pop", "ind"), variable.name = "locus",
+                            value.name = "freq")
+
+allele_freqs_melted$locus <- gsub("\\.1$", "", allele_freqs_melted$locus)
+##head(allele_freqs_melted)
+##str(allele_freqs_melted)
+
+Rab28_freq <- allele_freqs_melted[allele_freqs_melted$locus == loc$SNP, ]
+##Rab28_freq <- Rab28_freq[order(Rab28_freq$pop), ]
+##Rab28_freq
+##head(Rab28_freq)
+
+mean.freq <- aggregate(cbind(mean = freq) ~ pop, data = Rab28_freq, mean)
+sd.freq <- aggregate(cbind(sd = freq) ~ pop, data = Rab28_freq, sd)
+mean.freq$sd <- sd.freq$sd
+##str(mean.freq)
+
+x <- 1:18
+##plot(mean ~ pop, data = mean.freq, type = "b")
+
+
+plot(mean ~ x, data = mean.freq, type = "n", xaxt = "n", las = 1,
+     xlab = "", ylab = "", ylim = c(0, 0.5), axes = FALSE)
+
+grid()
+par(new = TRUE)
+
+plot(mean ~ x, data = mean.freq, type = "p", xaxt = "n", las = 1,
+     xlab = "", ylab = "Rab28 frequency", ylim = c(0, 0.5),
+     pch = 16, bg = "black")
+##lines(mean ~ x, data = mean.freq, col = "gold", lwd = 2)
+arrows(x0 = x, y0 = mean.freq$mean - mean.freq$sd, x1 = x,
+       y1 = mean.freq$mean + mean.freq$sd, code = 3, angle = 90,
+       length = 0.1)
+axis(side = 1, at = x, labels = mean.freq$pop, cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2)
+
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+all.alleles <- aggregate(freq ~ locus + pop,
+                         data = allele_freqs_melted, mean)
+##head(all.alleles)
+##str(all.alleles)
+
+wide_df <- dcast(all.alleles, locus ~ pop, value.var = "freq")
+##head(wide_df)
+##str(wide_df)
+wide_df2 <- wide_df[-1]
+##str(wide_df2)
+##head(wide_df2)
+##tail(wide_df2)
+
+x <- 1:18
+plot(NA, type = "l", las = 1, ylab = "Mean allele frequency",
+     xlab = "Pond", xaxt = "n", ylim = c(0, 1), xlim = c(1, 18))
+
+for(i in 1:nrow(wide_df2)){
+
+    lines(x, as.numeric(wide_df2[i, ]), col = alpha("red", 0.03))
+
+}
+
+axis(side = 1, at = x, labels = names(wide_df2), cex.axis = 0.7)
+wide_df[wide_df$locus == "loc14587_pos52", ]
+lines(x, as.numeric(wide_df2[500, ]), col = "gold", lwd = 3)
+
+```
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## now let's see how the env varies across ponds
+
+X.env.pop <- data.frame(scale(X.env), pop = aRanSyl_genind_pops2$pop,
+                        ind = as.character(merged.tab3$match.col))
+X.env.pop <- X.env.pop[order(X.env.pop$pop), ]
+str(X.env.pop)
+mean.env <- aggregate(X.env.pop[1:6], list(pop = X.env.pop$pop),
+                      mean)
+##mean.env
+x <- 1:18
+
+plot(elevation ~ x, data = mean.env, type = "n", pch = 16,
+     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
+     ylim = c(-3, 4), xlab = "", axes = FALSE)
+grid()
+par(new = TRUE)
+plot(elevation ~ x, data = mean.env, type = "b", pch = 16,
+     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
+     ylim = c(-3, 4), xlab = "")
+lines(wtGSF ~ x, data = mean.env, type = "b", pch = 16,
+     col = "skyblue")
+lines(area_m2 ~ x, data = mean.env, type = "b", pch = 16,
+     col = "orange")
+lines(Canopy_Perc_New ~ x, data = mean.env, type = "b", pch = 16,
+     col = "green4")
+lines(Dis_to_road ~ x, data = mean.env, type = "b", pch = 16,
+     col = "red")
+
+axis(side = 1, at = x, labels = mean.env$pop, cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2)
+legend("topleft", legend = c("elevation", "wtGSF", "area",
+                             "canopy cover", "distance to road"),
+       pch = 16,
+       col = c("gold", "skyblue", "orange", "green4", "red"),
+       bty = "n")
+
+```
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## drawing a map with coordinates of the populations
+
+## download Connecticut boundary (as an 'sf' object)
+## 'cb = TRUE' gives a simplified/cleaner coastline
+
+ct_boundary <- states(cb = TRUE, resolution = "20m") %>% 
+  filter(NAME == "Connecticut")
+
+leaflet(ct_boundary) %>%
+  addProviderTiles(providers$Esri.WorldImagery) %>%
+  addPolygons(fill = FALSE, color = "white", weight = 2) %>%
+  
+  ## 1. REMOVE or UPDATE setMaxBounds
+  ## If you keep the old bounds, the map will "snap" back to the whole state.
+  ## Let's set it to a tighter area around your ponds:
+  setMaxBounds(lng1 = -72.3, lat1 = 41.8, 
+               lng2 = -71.9, lat2 = 42.1) %>%
+  
+  addCircleMarkers(
+    lng = merged.tab3$Long, 
+    lat = merged.tab3$Lat, 
+    radius = 6,
+    color = "white",
+    fillColor = "red",
+    fillOpacity = 0.8,
+    weight = 2,
+    popup = merged.tab3$Pond
+  ) %>%
+
+  ## 2. DYNAMIC ZOOM
+  ## This is the "magic" line. It ignores the state boundary and zooms 
+  ## perfectly to the box containing only your ponds.
+  fitBounds(
+    lng1 = min(merged.tab3$Long), lat1 = min(merged.tab3$Lat),
+    lng2 = max(merged.tab3$Long), lat2 = max(merged.tab3$Lat)
+  )
+
+
+```
