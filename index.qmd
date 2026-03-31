@@ -12,6 +12,8 @@ format: html
 
 library(adegenet)
 library(ade4)
+library(boot)
+library(blme)
 library(car)
 library(canadamaps)
 library(data.table)
@@ -22,6 +24,7 @@ library(hierfstat)
 library(LEA)
 library(leaflet)
 library(lfmm)
+library(lme4)
 library(maps)
 library(mapplots)
 library(mapproj)
@@ -280,6 +283,7 @@ load("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_fst.RD
 aRanSyl_fst_mat <- as.matrix(aRanSyl_fst)
 aRanSyl_fst_mat[aRanSyl_fst_mat < 0] <- 0
 aRanSyl_fst_mat[1:4, 1:4]
+
 
 ## creating heatmap to plot genetic differentiation between
 ## populations
@@ -705,6 +709,7 @@ n <- names(which(nAll(aRanSyl_genind_pops2) == 2))
 aRanSyl_genind_pops2 <- aRanSyl_genind_pops2[loc = n]
 aRanSyl_genind_pops2
 
+
 ## we have to make sure that the order of the rows in
 ## the genind$tab object is the same order of the rows
 ## observed in the merged.tab3 table
@@ -762,7 +767,9 @@ test <- merge(df[c(1, 9)], merged.tab3, by = "match.col")
 test$match.col <- droplevels(test$match.col)
 ##test$temp
 
-X.env <- merged.tab3[c(17, 18, 22, 47, 64)]
+## X.env <- merged.tab3[c(17, 18, 22, 47, 64)], there are
+## two measures of canopy cover.  I stayed with GSF
+X.env <- merged.tab3[c(17, 18, 22, 64)]
 X.env$temp <- test$temp
 ##str(X.env)
 
@@ -770,7 +777,7 @@ X.env$temp <- test$temp
 ## latent factor GEA model
 
 mod_lfmm <- LEA::lfmm2(input = snppca, 
-                      env = scale(X.env[1:5]), 
+                      env = scale(X.env[1:4]), 
                       K = 1, 
                       effect.sizes = TRUE)
 ## get environmental effect sizes
@@ -779,7 +786,7 @@ B <- mod_lfmm@B
 
 pv <- lfmm2.test(mod_lfmm, 
                 input = snppca, 
-                env = scale(X.env[1:5]), 
+                env = scale(X.env[1:4]),
                 full = TRUE)
 
 ## define candidate loci for GO analysis
@@ -792,9 +799,7 @@ candidates <-  -log10(pv$pvalue) > 5
 
 ## how many candidate loci?
 
-sum(candidates)
-length(adaptive.snps)
-
+sum(candidates)/2
 
 ## we have to determine the position of the adaptive loci
 
@@ -828,6 +833,8 @@ loc2 <- fix_data[fix_data$ID == adaptive.snps[2], ]
 loc2
 loc3 <- fix_data[fix_data$ID == adaptive.snps[3], ]
 loc3
+loc4 <- fix_data[fix_data$ID == adaptive.snps[4], ]
+loc4
 
 
 ## map the positions onto gff file
@@ -842,11 +849,13 @@ gff.genes <- gff[gff$Type == "gene", ]
 str(gff.genes)
 
 loc1$POS
+loc1$CHROM
+loc2$POS
+loc2$CHROM
 gff.genes[gff.genes$Start == 694576498, ] ## gene Rab28, snp POS falls
                                            ## between 694576498 and 694764569
-##loc2$CHROM
-##unique(gff.genes$CHROM)
-##aRanSyl_genind_pops2$tab[ , "loc14587_pos52.0"]
+gff.genes[gff.genes$Start == 325882325, ] ## gene Col16a1_3, snp POS falls
+                                           ## between 325882325 and 326128092
 
 ```
 
@@ -881,7 +890,9 @@ man$BP <- as.numeric(factor(man$BP))
 man <- man[man$CHR %in% c(1:13), ]
 ##str(man)
 
-loc <- man[man$SNP == "loc14587_pos52", ]
+loc1.1 <- man[man$SNP == "loc14587_pos52", ]
+loc2.1 <- man[man$SNP == "loc22468_pos103", ]
+
 
 ## plotting manhattan plot
 
@@ -895,9 +906,14 @@ par(new = TRUE)
 manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", ylim = c(0, 15),
           yaxt = "n", ylab = "", xlab = "", cex.axis = 0.6, cex = 0.5,
           genomewideline = FALSE)
-Arrows(x0 = loc$BP, y0 = 7, x1 = loc$BP, y1 = 9, col = "red",
+Arrows(x0 = loc1.1$BP, y0 = 7, x1 = loc1.1$BP, y1 = 9, col = "red",
        arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2)
-text(x = loc$BP, y = 10, labels = "Rab28", cex = 0.6, col = "red")
+text(x = loc1.1$BP, y = 10, labels = "Rab28", cex = 0.6, col = "red")
+Arrows(x0 = loc2.1$BP+16e3, y0 = 6, x1 = loc2.1$BP+16e3, y1 = 8, col = "red", 
+       arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2) ## I does not
+## the position of the SNP - please double check!!
+text(x = loc2.1$BP+16e3, y = 8.5, labels = "Col16a1", cex = 0.6, col = "red")
+
 box()
 
 
@@ -906,20 +922,19 @@ box()
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
-
-## let's see how the frequency of the alt allele (Rab28)
-## changes across ponds
+## let's see how the frequency of the alt alleles (Rab28 and col16a1)
+## change across ponds
 
 allele_freqs <- as.data.frame(tab(aRanSyl_genind_pops2, freq = TRUE, NA.method = "mean"))
 allele_freqs[1:5, 1:5]
-cols_to_remove <- grep(".0", names(allele_freqs))
+cols_to_remove <- grep("\\.0$", names(allele_freqs))
 ##print(cols_to_remove)
 alt_allele_freqs <- allele_freqs[ , -cols_to_remove]
 ##str(alt_allele_freqs)
 
 alt_allele_freqs$pop <- aRanSyl_genind_pops2$pop
 alt_allele_freqs$ind <- rownames(alt_allele_freqs)
-##str(alt_allele_freq)
+##str(alt_allele_freqs)
 
 allele_freqs_melted <- melt(alt_allele_freqs, id.vars = c("pop", "ind"), variable.name = "locus",
                             value.name = "freq")
@@ -928,35 +943,49 @@ allele_freqs_melted$locus <- gsub("\\.1$", "", allele_freqs_melted$locus)
 ##head(allele_freqs_melted)
 ##str(allele_freqs_melted)
 
-Rab28_freq <- allele_freqs_melted[allele_freqs_melted$locus == loc$SNP, ]
+Rab28_freq <- allele_freqs_melted[allele_freqs_melted$locus == loc1.1$SNP, ]
+col16a1_freq <- allele_freqs_melted[allele_freqs_melted$locus == loc2.1$SNP, ]
 ##Rab28_freq <- Rab28_freq[order(Rab28_freq$pop), ]
 ##Rab28_freq
 ##head(Rab28_freq)
 
-mean.freq <- aggregate(cbind(mean = freq) ~ pop, data = Rab28_freq, mean)
-sd.freq <- aggregate(cbind(sd = freq) ~ pop, data = Rab28_freq, sd)
-mean.freq$sd <- sd.freq$sd
-##str(mean.freq)
+## Rab28
+
+Rab28.mean.freq <- aggregate(cbind(mean = freq) ~ pop, data = Rab28_freq, mean)
+Rab28.sd.freq <- aggregate(cbind(sd = freq) ~ pop, data = Rab28_freq, sd)
+Rab28.mean.freq$sd <- Rab28.sd.freq$sd
+##str(Rab28.mean.freq)
+
+## col16a1
+
+col16a1.mean.freq <- aggregate(cbind(mean = freq) ~ pop, data = col16a1_freq, mean)
+col16a1.sd.freq <- aggregate(cbind(sd = freq) ~ pop, data = col16a1_freq, sd)
+col16a1.mean.freq$sd <- col16a1.sd.freq$sd
+##str(col16a1.mean.freq)
+
 
 x <- 1:18
-##plot(mean ~ pop, data = mean.freq, type = "b")
-
-
-plot(mean ~ x, data = mean.freq, type = "n", xaxt = "n", las = 1,
+plot(mean ~ x, data = Rab28.mean.freq, type = "n", xaxt = "n", las = 1,
      xlab = "", ylab = "", ylim = c(0, 0.5), axes = FALSE)
 
 grid()
 par(new = TRUE)
 
-plot(mean ~ x, data = mean.freq, type = "p", xaxt = "n", las = 1,
-     xlab = "", ylab = "Rab28 frequency", ylim = c(0, 0.5),
-     pch = 16, bg = "black")
+plot(mean ~ x, data = Rab28.mean.freq, type = "l", xaxt = "n", las = 1,
+     xlab = "", ylab = "Mean allele frequency", ylim = c(0, 0.5),
+     pch = 16, bg = "black", lwd = 2)
+lines(mean ~ x, data = col16a1.mean.freq, col = "gray", pch = 16, lwd = 2)
 ##lines(mean ~ x, data = mean.freq, col = "gold", lwd = 2)
-arrows(x0 = x, y0 = mean.freq$mean - mean.freq$sd, x1 = x,
-       y1 = mean.freq$mean + mean.freq$sd, code = 3, angle = 90,
-       length = 0.1)
-axis(side = 1, at = x, labels = mean.freq$pop, cex.axis = 0.5)
+##arrows(x0 = x, y0 = Rab28.mean.freq$mean - Rab28.mean.freq$sd, x1 = x,
+##       y1 = Rab28.mean.freq$mean + Rab28.mean.freq$sd, code = 3, angle = 90,
+##       length = 0.1)
+##arrows(x0 = x, y0 = col16a1.mean.freq$mean - col16a1.mean.freq$sd, x1 = x,
+##       y1 = col16a1.mean.freq$mean + col16a1.mean.freq$sd, code = 3, angle = 90,
+##       length = 0.1)
+axis(side = 1, at = x, labels = Rab28.mean.freq$pop, cex.axis = 0.5)
 mtext(side = 1, 'Pond', line = 2)
+legend("topleft", legend = c("col16a1", "Rab28"), lty = 1, pch = 16, bty = "n",
+       col = c("gray", "black"), cex = 0.8)
 
 
 ```
@@ -979,7 +1008,7 @@ wide_df2 <- wide_df[-1]
 
 x <- 1:18
 plot(NA, type = "l", las = 1, ylab = "Mean allele frequency",
-     xlab = "Pond", xaxt = "n", ylim = c(0, 1), xlim = c(1, 18))
+     xlab = "Pond", xaxt = "n", ylim = c(0, 1.1), xlim = c(1, 18))
 
 for(i in 1:nrow(wide_df2)){
 
@@ -988,8 +1017,13 @@ for(i in 1:nrow(wide_df2)){
 }
 
 axis(side = 1, at = x, labels = names(wide_df2), cex.axis = 0.7)
-wide_df[wide_df$locus == "loc14587_pos52", ]
-lines(x, as.numeric(wide_df2[500, ]), col = "gold", lwd = 3)
+##wide_df[wide_df$locus == "loc14587_pos52", ]
+##wide_df[wide_df$locus == "loc22468_pos103", ]
+lines(x, as.numeric(wide_df2[945, ]), col = "gold", lwd = 3)
+lines(x, as.numeric(wide_df2[2247, ]), col = "skyblue", lwd = 3)
+legend("topleft", legend = c("col16a1", "Rab28"), lty = 1, lwd = 2, bty = "n",
+       col = c("skyblue", "gold"), cex = 0.8)
+
 
 ```
 
@@ -1013,28 +1047,25 @@ plot(elevation ~ x, data = mean.env, type = "n", pch = 16,
      ylim = c(-3, 4), xlab = "", axes = FALSE)
 grid()
 par(new = TRUE)
-plot(elevation ~ x, data = mean.env, type = "b", pch = 16,
+plot(elevation ~ x, data = mean.env, type = "l", pch = 16,
      col = "gold", xaxt = "n", las = 1, ylab = "Environment",
-     ylim = c(-3, 4), xlab = "")
-lines(wtGSF ~ x, data = mean.env, type = "b", pch = 16,
-     col = "skyblue")
-lines(area_m2 ~ x, data = mean.env, type = "b", pch = 16,
-     col = "orange")
-lines(Canopy_Perc_New ~ x, data = mean.env, type = "b", pch = 16,
-     col = "green4")
-lines(Dis_to_road ~ x, data = mean.env, type = "b", pch = 16,
-     col = "red")
+     ylim = c(-3, 4), xlab = "", lwd = 2)
+lines(wtGSF ~ x, data = mean.env, type = "l", pch = 16,
+     col = "skyblue", lwd = 2)
+lines(area_m2 ~ x, data = mean.env, type = "l", pch = 16,
+     col = "orange", lwd = 2)
+lines(Dis_to_road ~ x, data = mean.env, type = "l", pch = 16,
+     col = "red", lwd = 2)
 
 axis(side = 1, at = x, labels = mean.env$pop, cex.axis = 0.5)
 mtext(side = 1, 'Pond', line = 2)
 legend("topleft", legend = c("elevation", "wtGSF", "area",
-                             "canopy cover", "distance to road"),
-       pch = 16,
-       col = c("gold", "skyblue", "orange", "green4", "red"),
-       bty = "n")
+                             "distance to road"),
+       lwd = 2,
+       col = c("gold", "skyblue", "orange", "red"),
+       bty = "n", cex = 0.8)
 
 ```
-
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
@@ -1051,9 +1082,7 @@ leaflet(ct_boundary) %>%
   addProviderTiles(providers$Esri.WorldImagery) %>%
   addPolygons(fill = FALSE, color = "white", weight = 2) %>%
   
-  ## 1. REMOVE or UPDATE setMaxBounds
-  ## If you keep the old bounds, the map will "snap" back to the whole state.
-  ## Let's set it to a tighter area around your ponds:
+  ## let's set it to a tighter area around your ponds:
   setMaxBounds(lng1 = -72.3, lat1 = 41.8, 
                lng2 = -71.9, lat2 = 42.1) %>%
   
@@ -1068,13 +1097,445 @@ leaflet(ct_boundary) %>%
     popup = merged.tab3$Pond
   ) %>%
 
-  ## 2. DYNAMIC ZOOM
-  ## This is the "magic" line. It ignores the state boundary and zooms 
+  ## this is the "magic" line. It ignores the state boundary and zooms 
   ## perfectly to the box containing only your ponds.
   fitBounds(
     lng1 = min(merged.tab3$Long), lat1 = min(merged.tab3$Lat),
     lng2 = max(merged.tab3$Long), lat2 = max(merged.tab3$Lat)
   )
 
+
+```
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, echo = FALSE, include = FALSE}
+
+
+## setting up the CSV file with columns: population, family, ctmax)
+
+ct_max <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/ctMax/data/specimenDatabase_CTMax.csv")
+head(ct_max)
+str(ct_max)
+
+## removing the rows based on whether there is any comment in the "Notes" column
+## all comments in that column are related to the errors in the experiments
+ct_max_cleaned <- ct_max[!grepl("[a-zA-Z]", ct_max$Notes), -c(13:14)]
+str(ct_max_cleaned)
+
+## in the table, a "Pond" represents a population and a "Clutch" represents
+## a family 
+names(ct_max_cleaned)[5] <- "Population"
+names(ct_max_cleaned)[6] <- "Family"
+
+ct_max_cleaned <- ct_max_cleaned[!ct_max_cleaned$Population == "GB", ]
+
+tapply(ct_max_cleaned$Ctmax, ct_max_cleaned$Population, length)
+tapply(ct_max_cleaned$Ctmax, ct_max_cleaned$Family, length)
+
+## fitting the Mixed-Effects Model
+## we treat Population and Family (nested in Population) as random effects
+## to estimate their variance components
+ct_max.model <- lmer(Ctmax ~ (1 | Population) + (1 | Population:Family), 
+                      data = ct_max_cleaned)
+## the model does not converge. The variances seem to be too small
+summary(ct_max.model)
+
+## extracting Variance Components
+ctmax_var.comp <- as.data.frame(VarCorr(ct_max.model))
+print(ctmax_var.comp)
+
+## variables for Qst calculation:
+## sigma2_between (Population variance)
+var_pop <- ctmax_var.comp$vcov[ctmax_var.comp$grp == "Population"]
+
+# sigma2_within (Family variance - usually multiplied to estimate additive genetic variance Va)
+# in a half-sib design, Va = 4 * var_family. In full-sib, it's roughly 2 * var_family.
+var_fam <- ctmax_var.comp$vcov[ctmax_var.comp$grp == "Population:Family"]
+va_est <- 2 * var_fam 
+
+## calculating Qst
+## formula: Qst = var_pop / (var_pop + 2 * va_est)
+qst <- var_pop / (var_pop + 2 * va_est)
+qst ## THE MODEL COULD NOT PARTIOTION THE VARIANCE
+## DUE TO CONVERGENCE PROBLEMS, PROBABLY SMALL SAMPLE SIZE
+
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## setting up the CSV file with columns:
+## population, family, EmbryoTime)
+
+devel <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/embryoDevelopment/embryoDevelopment_database.csv")
+str(devel)
+
+## removing the rows based on whether there is any
+## comment in the "Notes" column all comments in that
+## column are related to the errors in the experiments
+devel_cleaned  <- devel[!grepl("[a-zA-Z]", devel$Notes), -9]
+str(devel_cleaned)
+devel_cleaned$EmbryoTime <- as.numeric(devel_cleaned$EmbryoTime)
+
+
+## in the table, a "Pond" represents a population and a
+## "Clutch" represents a family 
+names(devel_cleaned)[2] <- "Population"
+names(devel_cleaned)[3] <- "Family"
+
+devel_cleaned$Family <- as.character(devel_cleaned$Family)
+devel_cleaned <- devel_cleaned[!devel_cleaned$Population == "GB", ]
+
+tapply(devel_cleaned$EmbryoTime, devel_cleaned$Population, length)
+tapply(devel_cleaned$EmbryoTime, devel_cleaned$Family, length)
+
+## fitting the Mixed-Effects Model
+## we treat Population and Family (nested in Population) as random effects
+## to estimate their variance components
+devel.model <- lmer(EmbryoTime ~ (1 | Population) + (1 | Population:Family), 
+                      data = devel_cleaned)
+
+summary(devel.model)
+
+## extracting Variance Components
+devel_var.comp <- as.data.frame(VarCorr(devel.model))
+print(devel_var.comp)
+
+## variables for Qst calculation:
+## sigma2_between (Population variance)
+var_pop <- devel_var.comp$vcov[devel_var.comp$grp == "Population"]
+
+## sigma2_within (Family variance - usually multiplied
+## to estimate additive genetic variance Va)
+## in a half-sib design, Va = 4 * var_family.
+## In full-sib, it's roughly 2 * var_family.
+var_fam <- devel_var.comp$vcov[devel_var.comp$grp == "Population:Family"]
+va_est <- 2 * var_fam 
+
+## calculating Qst
+## formula: Qst = var_pop / (var_pop + 2 * va_est)
+qst <- var_pop / (var_pop + 2 * va_est)
+qst
+
+## calculating overall Fst for the same populations
+
+pops <- unique(devel_cleaned$Population)
+
+aRanSyl_genind_pops3 <- popsub(aRanSyl_genind_pops2,
+                               sublist = devel_cleaned$Population)
+
+## the number of alleles per locus seems to range from 1 to 2
+## we have to work with only biallelic loci, so there should always be 2
+
+n <- names(which(nAll(aRanSyl_genind_pops3) == 2))
+aRanSyl_genind_pops3 <- aRanSyl_genind_pops3[loc = n]
+aRanSyl_genind_pops3
+aRanSyl_genind_pops3$pop
+
+wc84_stats <- wc(aRanSyl_genind_pops3)
+wc84_stats$FST
+
+## calculating Fst confidence intervals
+
+fst_cis <- boot.ppfst(aRanSyl_genind_pops3,
+                      nboot = 1000, quant = c(0.025, 0.975))
+
+fst_ul <- mean(as.numeric(fst_cis$ul), na.rm = TRUE)
+fst_ll <- mean(as.numeric(fst_cis$ll), na.rm = TRUE)
+
+## boostraping to get confidence interval for Qst
+
+## function to calculate Qst for each bootstrap replicate
+qst_boot_func <- function(data, indices) {
+  ## resample the data
+  d <- data[indices, ]
+  
+  ## fit the model (using blmer to avoid singular fits)
+  devel.model <- lmer(EmbryoTime ~ (1 | Population) + (1 | Population:Family), data = d)
+  
+  ## extract variances
+  devel_var.comp <- as.data.frame(VarCorr(devel.model))
+  var_pop <- devel_var.comp$vcov[devel_var.comp$grp == "Population"]
+  var_fam <- devel_var.comp$vcov[devel_var.comp$grp == "Population:Family"]
+  
+  ## calculate Va (Additive Genetic Variance) and Qst
+  va <- 2 * var_fam
+  qst_val <- var_pop / (var_pop + 2 * va)
+  
+  return(qst_val)
+}
+
+## running 1000 bootstrap iterations
+##set.seed(123) # for reproducibility
+boot_results <- boot(data = devel_cleaned, statistic = qst_boot_func, R = 1000)
+
+## view the distribution
+print(boot_results)
+
+## 95% Confidence Intervals
+boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
+boot_ci_results$bca
+
+## comparing Qst and Fst for the trait
+
+ET.tab <- data.frame(Trait = "ET", Qst = qst,
+                     Qst_ci_ll = boot_ci_results$bca[4],
+                     Qst_ci_ul = boot_ci_results$bca[5],
+                     Fst = wc84_stats$FST,
+                     Fst_ci_ll = fst_ll,
+                     Fst_ci_ul = fst_ul)
+ET.tab
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+temp_pref <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/temperaturePreference/tPrefSummary.tsv", header = TRUE, sep = "\t")
+head(temp_pref)
+str(temp_pref)
+
+temp_pref2 <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/temperaturePreference/data/specimenDatabase_temperaturePreference.csv", header = TRUE)
+head(temp_pref2)
+str(temp_pref2)
+
+merg.temp <- data.frame(ID = temp_pref2$ID, Clutch = temp_pref2$Clutch)
+head(merg.temp)
+
+## merging tables so I have information on clutch/family
+
+temp.dat <- merge(temp_pref, merg.temp, by = "ID")
+head(temp.dat)
+str(temp.dat)
+
+
+## setting up the CSV file with columns: population, family, Tpref)
+
+Tpref <- temp.dat
+names(Tpref)[6:7] <- c("Population", "Family")
+str(Tpref)
+Tpref$Family <- as.character(Tpref$Family)
+
+## I have to remove clutches/families with less than 10 individuals.
+## Otherwise, the model can't estimate the variances
+
+Tpref <- Tpref[!Tpref$Population == "GB", ]
+Tpref <- Tpref[!Tpref$Family == "3", ]
+Tpref <- Tpref[!Tpref$Family == "7", ]
+Tpref <- Tpref[!Tpref$Family == "16", ]
+Tpref <- Tpref[!Tpref$Family == "19", ]
+
+tapply(Tpref$mean, Tpref$Population, length)
+tapply(Tpref$mean, Tpref$Family, length)
+
+## fitting the Mixed-Effects Model
+## we treat Population and Family (nested in Population) as random effects
+## to estimate their variance components
+Tpref.model <- lmer(mean ~ (1 | Population) + (1 | Population:Family), 
+                      data = Tpref)
+summary(Tpref.model)
+
+## extracting Variance Components
+Tpref_var.comp <- as.data.frame(VarCorr(Tpref.model))
+print(Tpref_var.comp)
+
+## variables for Qst calculation:
+## sigma2_between (Population variance)
+var_pop <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population"]
+
+## sigma2_within (Family variance - usually multiplied to
+##estimate additive genetic variance Va)
+## in a half-sib design, Va = 4 * var_family.
+## In full-sib, it's roughly 2 * var_family.
+var_fam <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population:Family"]
+va_est <- 2 * var_fam 
+
+## calculating Qst
+## formula: Qst = var_pop / (var_pop + 2 * va_est)
+qst <- var_pop / (var_pop + 2 * va_est)
+qst  ## EVEN THOUGH I REMOVED CLUTCHES WITH LOW NUMBER OF
+## INDIVIDUALS, Qst ENDED UP BEING TOO LOW
+wc84_stats$FST
+
+## boostraping to get confidence interval for Qst
+
+## function to calculate Qst for each bootstrap replicate
+qst_boot_func <- function(data, indices) {
+  ## resample the data
+  d <- data[indices, ]
+  
+  ## fit the model (using blmer to avoid singular fits)
+  Tpref.model <- lmer(mean ~ (1 | Population) + (1 | Population:Family), data = d)
+  
+  ## extract variances
+  Tpref_var.comp <- as.data.frame(VarCorr(Tpref.model))
+  var_pop <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population"]
+  var_fam <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population:Family"]
+  
+  ## calculate Va (Additive Genetic Variance) and Qst
+  va <- 2 * var_fam
+  qst_val <- var_pop / (var_pop + 2 * va)
+  
+  return(qst_val)
+}
+
+## running 1000 bootstrap iterations
+##set.seed(123) # for reproducibility
+boot_results <- boot(data = Tpref, statistic = qst_boot_func, R = 1000)
+
+## view the distribution
+print(boot_results)
+
+## 95% Confidence Intervals
+boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
+boot_ci_results$bca
+
+## comparing Qst and Fst for the trait
+
+
+Tpref.tab <- data.frame(Trait = "Tpref", Qst = qst,
+                        Qst_ci_ll = boot_ci_results$bca[4],
+                        Qst_ci_ul = boot_ci_results$bca[5],
+                        Fst = wc84_stats$FST,
+                        Fst_ci_ll = fst_ll,
+                        Fst_ci_ul = fst_ul)
+Tpref.tab
+
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+EP <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/growthRate/growthSummary.tsv", header = TRUE, sep = "\t")
+head(EP)
+str(EP)
+
+## setting up the CSV file with columns: population, family, EP)
+
+names(EP)[2:3] <- c("Population", "Family")
+str(EP)
+EP$Family <- as.character(EP$Family)
+
+tapply(EP$EP, EP$Population, length)
+tapply(EP$EP, EP$Family, length)
+
+## fitting the Mixed-Effects Model
+## we treat Population and Family (nested in Population) as random effects
+## to estimate their variance components
+EP.model <- lmer(EP ~ (1 | Population) + (1 | Population:Family), 
+                      data = EP)
+summary(EP.model)
+
+## extracting Variance Components
+EP_var.comp <- as.data.frame(VarCorr(EP.model))
+print(EP_var.comp)
+
+## variables for Qst calculation:
+## sigma2_between (Population variance)
+var_pop <- EP_var.comp$vcov[EP_var.comp$grp == "Population"]
+
+## sigma2_within (Family variance - usually multiplied
+## to estimate additive genetic variance Va)
+## in a half-sib design, Va = 4 * var_family.
+##In full-sib, it's roughly 2 * var_family.
+var_fam <- EP_var.comp$vcov[EP_var.comp$grp == "Population:Family"]
+va_est <- 2 * var_fam 
+
+## calculating Qst
+## formula: Qst = var_pop / (var_pop + 2 * va_est)
+qst <- var_pop / (var_pop + 2 * va_est)
+qst
+wc84_stats$FST
+
+## boostraping to get confidence interval for Qst
+
+## function to calculate Qst for each bootstrap replicate
+qst_boot_func <- function(data, indices) {
+  ## resample the data
+  d <- data[indices, ]
+  
+  ## fit the model (using blmer to avoid singular fits)
+  EP.model <- lmer(EP ~ (1 | Population) + (1 | Population:Family), data = d)
+  
+  ## extract variances
+  EP_var.comp <- as.data.frame(VarCorr(EP.model))
+  var_pop <- EP_var.comp$vcov[EP_var.comp$grp == "Population"]
+  var_fam <- EP_var.comp$vcov[EP_var.comp$grp == "Population:Family"]
+  
+  ## calculate Va (Additive Genetic Variance) and Qst
+  va <- 2 * var_fam
+  qst_val <- var_pop / (var_pop + 2 * va)
+  
+  return(qst_val)
+}
+
+## running 1000 bootstrap iterations
+##set.seed(123) # for reproducibility
+boot_results <- boot(data = EP, statistic = qst_boot_func, R = 1000)
+
+## view the distribution
+print(boot_results)
+
+## 95% Confidence Intervals
+boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
+boot_ci_results$bca
+
+## comparing Qst and Fst for the trait
+
+EP.tab <- data.frame(Trait = "EP", Qst = qst,
+                     Qst_ci_ll = boot_ci_results$bca[4],
+                     Qst_ci_ul = boot_ci_results$bca[5],
+                     Fst = wc84_stats$FST,
+                     Fst_ci_ll = fst_ll,
+                     Fst_ci_ul = fst_ul)
+EP.tab
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## setting up tables to visualize results
+
+traits_tab <- rbind(ET.tab, EP.tab)
+traits_tab
+
+## plotting Qst and Fst for different traits
+
+x <- 1:2
+plot(traits_tab$Qst ~ x, type = "n", xaxt = "n", las = 1,
+     xlab = "Trait", ylab = expression(Overall~italic("Q")[st]~vs~italic("F")[st]),
+     ylim = c(0.00, 0.060),
+     xlim = c(0, 3), xaxt = "n")
+
+grid()
+par(new = TRUE)
+
+points(traits_tab$Qst ~ x, type = "b", xaxt = "n", las = 1,
+     xlab = "", ylab = "", ylim = c(0.00, 0.060),
+     pch = 16, col = "black", lwd = 2)
+arrows(x0 = x, y0 = traits_tab$Qst_ci_ll, x1 = x,
+       y1 = traits_tab$Qst_ci_ul, code = 3, angle = 90,
+       length = 0.1)
+points(traits_tab$Fst ~ x, type = "b", xaxt = "n", las = 1,
+     xlab = "", ylab = "", ylim = c(min(traits_tab$Qst), 0.070),
+     pch = 16, col = "gray", lwd = 2)
+arrows(x0 = x, y0 = traits_tab$Fst_ci_ll, x1 = x,
+       y1 = traits_tab$Fst_ci_ul, code = 3, angle = 90,
+       length = 0.1, col = "gray")
+
+axis(side = 1, at = x, labels = c("Developmental time", "Embryonic period"),
+     cex.axis = 0.8)
+legend("topleft", legend = c("Fst", "Qst"), lty = 1, pch = 16, bty = "n",
+       col = c("gray", "black"), cex = 0.8)
 
 ```
