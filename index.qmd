@@ -1416,6 +1416,9 @@ Tpref.tab
 
 EP <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/growthRate/growthSummary.tsv", header = TRUE, sep = "\t")
 head(EP)
+EP <- EP[!is.na(EP$EP), ]
+EPcorr <- residuals(lm(EP ~ eggVolume, data = EP))
+EP$EPcorr <- EPcorr
 str(EP)
 
 ## setting up the CSV file with columns: population, family, EP)
@@ -1430,7 +1433,7 @@ tapply(EP$EP, EP$Family, length)
 ## fitting the Mixed-Effects Model
 ## we treat Population and Family (nested in Population) as random effects
 ## to estimate their variance components
-EP.model <- lmer(EP ~ (1 | Population) + (1 | Population:Family), 
+EP.model <- lmer(EPcorr ~ (1 | Population) + (1 | Population:Family), 
                       data = EP)
 summary(EP.model)
 
@@ -1463,7 +1466,7 @@ qst_boot_func <- function(data, indices) {
   d <- data[indices, ]
   
   ## fit the model (using blmer to avoid singular fits)
-  EP.model <- lmer(EP ~ (1 | Population) + (1 | Population:Family), data = d)
+  EP.model <- lmer(EPcorr ~ (1 | Population) + (1 | Population:Family), data = d)
   
   ## extract variances
   EP_var.comp <- as.data.frame(VarCorr(EP.model))
