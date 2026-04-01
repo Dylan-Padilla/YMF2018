@@ -898,17 +898,17 @@ loc2.1 <- man[man$SNP == "loc22468_pos103", ]
 
 par(mgp = c(2.7, 1, 0))
 manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", xaxt = "n",
-          ylim = c(0, 15), type = "n", cex.axis = 0.8, cex = 0.5,
+          ylim = c(0, 10), type = "n", cex.axis = 0.8, cex = 0.8,
           genomewideline = FALSE)
 grid()
 par(new = TRUE)
 
-manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", ylim = c(0, 15),
-          yaxt = "n", ylab = "", xlab = "", cex.axis = 0.6, cex = 0.5,
+manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", ylim = c(0, 10),
+          yaxt = "n", ylab = "", xlab = "", cex.axis = 0.6, cex = 0.8,
           genomewideline = FALSE)
 Arrows(x0 = loc1.1$BP, y0 = 7, x1 = loc1.1$BP, y1 = 9, col = "red",
        arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2)
-text(x = loc1.1$BP, y = 10, labels = "Rab28", cex = 0.6, col = "red")
+text(x = loc1.1$BP, y = 9.7, labels = "Rab28", cex = 0.6, col = "red")
 Arrows(x0 = loc2.1$BP+16e3, y0 = 6, x1 = loc2.1$BP+16e3, y1 = 8, col = "red", 
        arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2) ## I does not
 ## the position of the SNP - please double check!!
@@ -1019,10 +1019,10 @@ for(i in 1:nrow(wide_df2)){
 axis(side = 1, at = x, labels = names(wide_df2), cex.axis = 0.7)
 ##wide_df[wide_df$locus == "loc14587_pos52", ]
 ##wide_df[wide_df$locus == "loc22468_pos103", ]
-lines(x, as.numeric(wide_df2[945, ]), col = "gold", lwd = 3)
-lines(x, as.numeric(wide_df2[2247, ]), col = "skyblue", lwd = 3)
+lines(x, as.numeric(wide_df2[945, ]), col = "black", lwd = 3)
+lines(x, as.numeric(wide_df2[2247, ]), col = "gray", lwd = 3)
 legend("topleft", legend = c("col16a1", "Rab28"), lty = 1, lwd = 2, bty = "n",
-       col = c("skyblue", "gold"), cex = 0.8)
+       col = c("gray", "black"), cex = 0.8)
 
 
 ```
@@ -1109,7 +1109,7 @@ leaflet(ct_boundary) %>%
 
 
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, echo = FALSE, include = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
 ## setting up the CSV file with columns: population, family, ctmax)
