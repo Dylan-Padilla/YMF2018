@@ -1296,139 +1296,47 @@ ET.tab
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
-temp_pref <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/temperaturePreference/tPrefSummary.tsv", header = TRUE, sep = "\t")
-head(temp_pref)
-str(temp_pref)
+##EP <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/growthRate/growthSummary.tsv", header = TRUE, sep = "\t")
+##head(EP)
+##EP <- EP[!is.na(EP$EP), ]
+##str(EP)
+##EPcorr <- residuals(lm(EP ~ eggVolume, data = EP))
+##EP$EPcorr <- EPcorr
+##str(EP)
 
-temp_pref2 <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/temperaturePreference/data/specimenDatabase_temperaturePreference.csv", header = TRUE)
-head(temp_pref2)
-str(temp_pref2)
-
-merg.temp <- data.frame(ID = temp_pref2$ID, Clutch = temp_pref2$Clutch)
-head(merg.temp)
-
-## merging tables so I have information on clutch/family
-
-temp.dat <- merge(temp_pref, merg.temp, by = "ID")
-head(temp.dat)
-str(temp.dat)
-
-
-## setting up the CSV file with columns: population, family, Tpref)
-
-Tpref <- temp.dat
-names(Tpref)[6:7] <- c("Population", "Family")
-str(Tpref)
-Tpref$Family <- as.character(Tpref$Family)
-
-## I have to remove clutches/families with less than 10 individuals.
-## Otherwise, the model can't estimate the variances
-
-Tpref <- Tpref[!Tpref$Population == "GB", ]
-Tpref <- Tpref[!Tpref$Family == "3", ]
-Tpref <- Tpref[!Tpref$Family == "7", ]
-Tpref <- Tpref[!Tpref$Family == "16", ]
-Tpref <- Tpref[!Tpref$Family == "19", ]
-
-tapply(Tpref$mean, Tpref$Population, length)
-tapply(Tpref$mean, Tpref$Family, length)
-
-## fitting the Mixed-Effects Model
-## we treat Population and Family (nested in Population) as random effects
-## to estimate their variance components
-Tpref.model <- lmer(mean ~ (1 | Population) + (1 | Population:Family), 
-                      data = Tpref)
-summary(Tpref.model)
-
-## extracting Variance Components
-Tpref_var.comp <- as.data.frame(VarCorr(Tpref.model))
-print(Tpref_var.comp)
-
-## variables for Qst calculation:
-## sigma2_between (Population variance)
-var_pop <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population"]
-
-## sigma2_within (Family variance - usually multiplied to
-##estimate additive genetic variance Va)
-## in a half-sib design, Va = 4 * var_family.
-## In full-sib, it's roughly 2 * var_family.
-var_fam <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population:Family"]
-va_est <- 2 * var_fam 
-
-## calculating Qst
-## formula: Qst = var_pop / (var_pop + 2 * va_est)
-qst <- var_pop / (var_pop + 2 * va_est)
-qst  ## EVEN THOUGH I REMOVED CLUTCHES WITH LOW NUMBER OF
-## INDIVIDUALS, Qst ENDED UP BEING TOO LOW
-wc84_stats$FST
-
-## boostraping to get confidence interval for Qst
-
-## function to calculate Qst for each bootstrap replicate
-qst_boot_func <- function(data, indices) {
-  ## resample the data
-  d <- data[indices, ]
-  
-  ## fit the model (using blmer to avoid singular fits)
-  Tpref.model <- lmer(mean ~ (1 | Population) + (1 | Population:Family), data = d)
-  
-  ## extract variances
-  Tpref_var.comp <- as.data.frame(VarCorr(Tpref.model))
-  var_pop <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population"]
-  var_fam <- Tpref_var.comp$vcov[Tpref_var.comp$grp == "Population:Family"]
-  
-  ## calculate Va (Additive Genetic Variance) and Qst
-  va <- 2 * var_fam
-  qst_val <- var_pop / (var_pop + 2 * va)
-  
-  return(qst_val)
-}
-
-## running 1000 bootstrap iterations
-##set.seed(123) # for reproducibility
-boot_results <- boot(data = Tpref, statistic = qst_boot_func, R = 1000)
-
-## view the distribution
-print(boot_results)
-
-## 95% Confidence Intervals
-boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
-boot_ci_results$bca
-
-## comparing Qst and Fst for the trait
-
-
-Tpref.tab <- data.frame(Trait = "Tpref", Qst = qst,
-                        Qst_ci_ll = boot_ci_results$bca[4],
-                        Qst_ci_ul = boot_ci_results$bca[5],
-                        Fst = wc84_stats$FST,
-                        Fst_ci_ll = fst_ll,
-                        Fst_ci_ul = fst_ul)
-Tpref.tab
-
-
-
-```
-
-
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
-
-
-EP <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/growthRate/growthSummary.tsv", header = TRUE, sep = "\t")
+EP <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/embryoDevelopment/EPFrame.csv")
 head(EP)
-EP <- EP[!is.na(EP$EP), ]
-EPcorr <- residuals(lm(EP ~ eggVolume, data = EP))
-EP$EPcorr <- EPcorr
 str(EP)
+
+
+##LP <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/embryoDevelopment/metamorphosis.final.txt", header = TRUE, sep = " ")
+##head(LP)
+##str(LP)
+
 
 ## setting up the CSV file with columns: population, family, EP)
 
-names(EP)[2:3] <- c("Population", "Family")
+##names(EP)[2:3] <- c("Population", "Family")
+names(EP)[6:7] <- c("Population", "Family")
+EP <- EP[!EP$Population == "GB", ]
+unique(EP$Population)
+
 str(EP)
-EP$Family <- as.character(EP$Family)
+##EP$Family <- as.character(EP$Family)
+
+##names(LP)[2:3] <- c("Population", "Family")
+##LP <- LP[!LP$Population == "GB", ]
+##unique(LP$Population)
+
+##str(LP)
 
 tapply(EP$EP, EP$Population, length)
 tapply(EP$EP, EP$Family, length)
+
+
+##tapply(LP$LP, LP$Population, length)
+##tapply(LP$LP, LP$Family, length)
+
 
 ## fitting the Mixed-Effects Model
 ## we treat Population and Family (nested in Population) as random effects
@@ -1540,5 +1448,44 @@ axis(side = 1, at = x, labels = c("Developmental time", "Embryonic period"),
      cex.axis = 0.8)
 legend("topleft", legend = c("Fst", "Qst"), lty = 1, pch = 16, bty = "n",
        col = c("gray", "black"), cex = 0.8)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## setting up tables to visualize results
+
+traits_tab <- rbind(ET.tab, EP.tab)
+traits_tab
+
+## plotting Qst and Fst for different traits
+
+mp <- barplot(c(traits_tab$Qst[2], traits_tab$Fst[2]), space = FALSE,
+              col = c("white", "white"), ylim = c(0.00, 0.050),
+              border = FALSE, las = 1, axes = FALSE)
+
+grid()
+par(new = TRUE)
+
+barplot(c(traits_tab$Qst[2], traits_tab$Fst[2]), space = FALSE,
+        col = c("black", "gray"), ylim = c(0.00, 0.050), las = 1,
+        xlab = "Embryonic period", border = FALSE,
+        ylab = expression(Overall~italic("Q")[st]~vs~italic("F")[st]))
+
+arrows(x0 = mp[1], y0 = traits_tab$Qst_ci_ll[2],
+       x1 = mp[1], y1 = traits_tab$Qst_ci_ul[2],
+       code = 3, angle = 90, length = 0.1, col = "red")
+arrows(x0 = mp[2], y0 = traits_tab$Fst_ci_ll, x1 = mp[2],
+       y1 = traits_tab$Fst_ci_ul, code = 3, angle = 90,
+       length = 0.1, col = "red")
+box()
+
+legend("topleft", legend = c("Fst", "Qst"), pch = 15, bty = "n",
+       col = c("gray", "black"), cex = 0.8)
+
+text(x = 1, y = 0.035, expression(italic("Q"[st])%~~%italic("F"[st])),
+     cex = 1.5)
 
 ```
