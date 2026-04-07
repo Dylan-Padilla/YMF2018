@@ -74,7 +74,7 @@ metadata$match.col[3:48] <- gsub("(_)(.)", "\\10\\2", metadata$match.col[3:48])
 meta_unique <- metadata[!duplicated(metadata$match.col), ]
 ##meta_unique$match.col
 
-## perform a Left Join
+## perform a left join
 ## 'all.x = TRUE' ensures we keep all 205 rows from aRanSyl_rows
 #merged.tab <- merge(aRanSyl_rows, meta_unique, by = "match.col", all.x = TRUE)
 merged.tab <- merge(aRanSyl_rows, meta_unique, by = "match.col", all.x = FALSE)
@@ -405,7 +405,7 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
-## This is what would happen if we select K = 2 in the strcuture analysis
+## this is what would happen if we select K = 2 in the strcuture analysis
 
 layout(matrix(c(1, 1, 1, 1, 1, 1,
                 1, 1, 1, 1, 1, 1,
@@ -569,6 +569,79 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 
 ```
 
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+####### Plotting results of the demographic model ##########
+
+## loading the data
+best_lh <- read.table(
+    file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_RecentSplit/fsc-selection/bestrun/aRanSyl_RecentSplit.bestlhoods", header = TRUE)
+
+## extracting parameters for plotting 
+n_pops <- 5
+pop_sizes <- as.numeric(best_lh[1, 1:n_pops])
+n_anc <- best_lh$NANC
+t_div <- best_lh$TDIV
+pop_labels <- colnames(best_lh)[1:n_pops] # Extracts NPOP0, NPOP1, etc.
+new_labels <- c("BS", "DT", "E8", "PB", "X7")
+pop_labels <- new_labels
+
+
+## scaling for Spacing
+## we want the widest branch to occupy only 60% of the horizontal space between centers
+## to ensure there is always a visible gap (space) between populations.
+max_val <- max(c(pop_sizes, n_anc))
+scale_factor <- max_val / 0.6 
+
+widths <- pop_sizes / scale_factor
+n_anc_width <- n_anc / scale_factor
+
+## setup Plot Area
+## increase bottom margin (first value in 'mar') to make room for rotated labels
+par(mar = c(7, 5, 4, 2)) 
+
+plot(1, type = "n", 
+     xlim = c(0.5, n_pops + 0.5), 
+     ylim = c(-t_div * 0.1, t_div * 1.9), 
+     xlab = "", ylab = "Time (Generations)",
+     xaxt = "n", bty = "n", las = 1)
+
+##  drawing Lineages and add Ne at tips
+for(i in 1:n_pops){
+  w <- widths[i] / 2
+  # Draw the branch
+  polygon(c(i - w, i + w, i + w, i - w), 
+          c(0, 0, t_div, t_div), 
+          col = "tan", border = "chocolate4")
+    text(i, t_div * 0.05, labels = round(pop_sizes[i], 0), 
+       cex = 0.6, font = 2, col = "chocolate4")
+  text(i, t_div*0.05+10, labels = rep(expression(italic(N[e])), 5), 
+       cex = 0.6, font = 2, col = "chocolate4")
+}
+
+## drawing ancestral trunk
+trunk_center <- (1 + n_pops) / 2
+aw <- n_anc_width / 2
+polygon(c(trunk_center - aw, trunk_center + aw, trunk_center + aw, trunk_center - aw),
+        c(t_div, t_div, t_div * 1.5, t_div * 1.5),
+        col = "tan", border = "chocolate4")
+
+## drawing phylogenetic merge lines
+for(i in 1:n_pops){
+  segments(i, t_div, trunk_center, t_div, col = "chocolate4", lwd = 1.5)
+}
+
+## adding final labels
+## divergence time label
+text(trunk_center-0.6, t_div, paste("TDIV:", round(t_div, 0)),
+     pos = 3, font = 2, col = "darkred", cex = 0.8)
+
+## x-axis labels for clarity
+text(x = 1:n_pops+0.1, y = -t_div * 0.08, labels = pop_labels, 
+     adj = 1, xpd = TRUE, cex = 1)
+
+
+```
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
@@ -1289,6 +1362,66 @@ ET.tab <- data.frame(Trait = "ET", Qst = qst,
                      Fst_ci_ll = fst_ll,
                      Fst_ci_ul = fst_ul)
 ET.tab
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## setting up the genind object for convertion to an vcf file
+## I want to make sure that the individual names do not have "_"
+## becuase PLINK has compatibility issues with underscores. Also,
+## I have to make sure, that the individuals are ordered based on
+## the populations they belong to.  That is to say, I want the
+## individuals organized from  pop1 to pop5.  This is necessary to
+## run easyFSF.py for demographic modeling inference
+
+
+## creating a new genind object
+
+aRanSyl_genind_pops4 <- aRanSyl_genind_pops3
+
+## changing the name of individuals in the genind object
+
+indNames(aRanSyl_genind_pops4) <- gsub("_", ":", indNames(aRanSyl_genind_pops4))
+aRanSyl_genind_pops4$tab[1:5, 1:5]
+
+## creating a dataset to keep track of the new population names
+
+aRanSyl_tab4 <- data.frame(ind = indNames(aRanSyl_genind_pops4),
+                           pop = aRanSyl_genind_pops4$pop,
+                           pop.n = paste("pop", as.numeric(aRanSyl_genind_pops4$pop),
+                                         sep = ""))
+##write.table(aRanSyl_tab4,
+##            file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/pops_names.txt",
+##            row.names = FALSE, sep = " ")
+
+## adding a prefix to the individual names to track
+## the populations they belong to
+
+indNames(aRanSyl_genind_pops4) <- paste(aRanSyl_tab4$pop.n,
+                                        indNames(aRanSyl_genind_pops4), sep = "_")
+indNames(aRanSyl_genind_pops4)
+
+
+aRanSyl_genind_pops4$pop <- as.factor(aRanSyl_tab4$pop.n)
+aRanSyl_genind_pops4$pop
+
+aRanSyl_genind_pops4 <- aRanSyl_genind_pops4[order(pop(aRanSyl_genind_pops4),
+                                                   indNames(aRanSyl_genind_pops4)), ]
+
+pops_file <- cbind(indNames(aRanSyl_genind_pops4),
+                   as.character(aRanSyl_genind_pops4$pop))
+
+##write.table(pops_file,
+##            file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/pops_file.txt",
+##            row.names = FALSE, col.names = FALSE, sep = " ")
+
+
+##save(aRanSyl_genind_pops4,
+##     file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_genind_pops4.RData")
+
 
 ```
 
