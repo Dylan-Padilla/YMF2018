@@ -625,6 +625,10 @@ aw <- n_anc_width / 2
 polygon(c(trunk_center - aw, trunk_center + aw, trunk_center + aw, trunk_center - aw),
         c(t_div, t_div, t_div * 1.5, t_div * 1.5),
         col = "tan", border = "chocolate4")
+NANC <- "4024"
+text(trunk_center, t_div+30, NANC, font = 2, cex = 0.6, col = "chocolate4")
+text(trunk_center, t_div+40, expression(italic("N"[e])), font = 2, cex = 0.6,
+                                        col = "chocolate4")
 
 ## drawing phylogenetic merge lines
 for(i in 1:n_pops){
@@ -1604,8 +1608,8 @@ par(new = TRUE)
 
 barplot(c(traits_tab$Qst[2], traits_tab$Fst[2]), space = FALSE,
         col = c("black", "gray"), ylim = c(0.00, 0.050), las = 1,
-        xlab = "Embryonic period", border = FALSE,
-        ylab = expression(Overall~italic("Q")[st]~vs~italic("F")[st]))
+        xlab = "", border = FALSE,
+        ylab = "Mean value based on 1000 boostrap iterations")
 
 arrows(x0 = mp[1], y0 = traits_tab$Qst_ci_ll[2],
        x1 = mp[1], y1 = traits_tab$Qst_ci_ul[2],
@@ -1615,9 +1619,9 @@ arrows(x0 = mp[2], y0 = traits_tab$Fst_ci_ll, x1 = mp[2],
        length = 0.1, col = "red")
 box()
 
-legend("topleft", legend = c("Fst", "Qst"), pch = 15, bty = "n",
-       col = c("gray", "black"), cex = 0.8)
-
+axis(side = 1, at = mp,
+     labels = c(expression(italic("Q"[st])~EP), expression(italic("F"[st]))),
+     cex = 1)
 text(x = 1, y = 0.035, expression(italic("Q"[st])%~~%italic("F"[st])),
      cex = 1.5)
 
