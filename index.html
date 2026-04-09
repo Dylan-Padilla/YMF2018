@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.52">
+<meta name="generator" content="quarto-1.5.47">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="index_files/libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
 <link href="index_files/libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
 <script src="index_files/libs/leaflet-binding-2.2.3/leaflet.js"></script>
-<script src="index_files/libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script>
+<script src="index_files/libs/leaflet-providers-3.0.0/leaflet-providers.js"></script>
 <script src="index_files/libs/leaflet-providers-plugin-2.2.3/leaflet-providers-plugin.js"></script>
 
 
@@ -860,7 +860,7 @@ BS  0.007 0.003 0.007 0.000</code></pre>
 <span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>          <span class="at">col =</span> <span class="st">"tan"</span>, <span class="at">border =</span> <span class="st">"chocolate4"</span>)</span>
 <span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">text</span>(i, t_div <span class="sc">*</span> <span class="fl">0.05</span>, <span class="at">labels =</span> <span class="fu">round</span>(pop_sizes[i], <span class="dv">0</span>), </span>
 <span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"chocolate4"</span>)</span>
-<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">text</span>(i, t_div<span class="sc">*</span><span class="fl">0.05</span><span class="sc">+</span><span class="dv">10</span>, <span class="at">labels =</span> <span class="fu">rep</span>(<span class="fu">expression</span>(<span class="fu">italic</span>(N[e])), <span class="dv">5</span>), </span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">text</span>(i, t_div<span class="sc">*</span><span class="fl">0.05</span><span class="sc">+</span><span class="dv">3</span>, <span class="at">labels =</span> <span class="fu">rep</span>(<span class="fu">expression</span>(<span class="fu">italic</span>(N[e])), <span class="dv">5</span>), </span>
 <span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"chocolate4"</span>)</span>
 <span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a></span>
@@ -870,9 +870,9 @@ BS  0.007 0.003 0.007 0.000</code></pre>
 <span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a><span class="fu">polygon</span>(<span class="fu">c</span>(trunk_center <span class="sc">-</span> aw, trunk_center <span class="sc">+</span> aw, trunk_center <span class="sc">+</span> aw, trunk_center <span class="sc">-</span> aw),</span>
 <span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>        <span class="fu">c</span>(t_div, t_div, t_div <span class="sc">*</span> <span class="fl">1.5</span>, t_div <span class="sc">*</span> <span class="fl">1.5</span>),</span>
 <span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"tan"</span>, <span class="at">border =</span> <span class="st">"chocolate4"</span>)</span>
-<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>NANC <span class="ot">&lt;-</span> <span class="st">"4024"</span></span>
-<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(trunk_center, t_div<span class="sc">+</span><span class="dv">30</span>, NANC, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">col =</span> <span class="st">"chocolate4"</span>)</span>
-<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(trunk_center, t_div<span class="sc">+</span><span class="dv">40</span>, <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"N"</span>[e])), <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.6</span>,</span>
+<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>NANC <span class="ot">&lt;-</span> <span class="st">"1119"</span></span>
+<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(trunk_center, t_div<span class="sc">+</span><span class="dv">5</span>, NANC, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">col =</span> <span class="st">"chocolate4"</span>)</span>
+<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(trunk_center, t_div<span class="sc">+</span><span class="dv">8</span>, <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"N"</span>[e])), <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.6</span>,</span>
 <span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">col =</span> <span class="st">"chocolate4"</span>)</span>
 <span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a><span class="do">## drawing phylogenetic merge lines</span></span>
@@ -1379,8 +1379,8 @@ YMF2018_053_S13_R1_001              0               2               0</code></pr
 <pre><code>              ID   pvalues
 1  loc31_pos65.0 0.1821219
 2  loc31_pos65.1 0.1821219
-3  loc31_pos86.0 0.3946775
-4  loc31_pos86.1 0.3946775
+3  loc31_pos86.0 0.3946774
+4  loc31_pos86.1 0.3946774
 5 loc163_pos10.0 0.1573657
 6 loc163_pos10.1 0.1573657</code></pre>
 </div>
@@ -1400,8 +1400,8 @@ YMF2018_053_S13_R1_001              0               2               0</code></pr
 <pre><code>            ID   pvalues
 1  loc31_pos65 0.1821219
 2  loc31_pos65 0.1821219
-3  loc31_pos86 0.3946775
-4  loc31_pos86 0.3946775
+3  loc31_pos86 0.3946774
+4  loc31_pos86 0.3946774
 5 loc163_pos10 0.1573657
 6 loc163_pos10 0.1573657</code></pre>
 </div>
@@ -1569,8 +1569,8 @@ YMF2018_053_S13_R1_001              0               2               0</code></pr
 <pre><code>              ID   pvalues
 1  loc31_pos65.0 0.1821219
 2  loc31_pos65.1 0.1821219
-3  loc31_pos86.0 0.3946775
-4  loc31_pos86.1 0.3946775
+3  loc31_pos86.0 0.3946774
+4  loc31_pos86.1 0.3946774
 5 loc163_pos10.0 0.1573657
 6 loc163_pos10.1 0.1573657</code></pre>
 </div>
@@ -1590,9 +1590,9 @@ YMF2018_053_S13_R1_001              0               2               0</code></pr
 <div class="cell-output cell-output-stdout">
 <pre><code>                ID   pvalues
 1    loc31_pos65.0 0.1821219
-3    loc31_pos86.0 0.3946775
+3    loc31_pos86.0 0.3946774
 5   loc163_pos10.0 0.1573657
-7   loc163_pos80.0 0.4265654
+7   loc163_pos80.0 0.4265653
 9  loc163_pos106.0 0.1930431
 11  loc222_pos97.1 0.3819146</code></pre>
 </div>
@@ -1608,10 +1608,10 @@ YMF2018_053_S13_R1_001              0               2               0</code></pr
 <div class="cell-output cell-output-stdout">
 <pre><code>               SNP        CHR        BP          P
 12 loc10012_pos134 CM053026.1 482685691 0.58300720
-13  loc10012_pos62 CM053026.1 482685619 0.06988542
+13  loc10012_pos62 CM053026.1 482685619 0.06988541
 21   loc10025_pos2 CM053026.1 483009721 0.96119867
-22 loc10041_pos126 CM053026.1 483746846 0.94916118
-23  loc10041_pos70 CM053026.1 483746790 0.94916118
+22 loc10041_pos126 CM053026.1 483746846 0.94916117
+23  loc10041_pos70 CM053026.1 483746790 0.94916117
 24 loc10076_pos103 CM053026.1 485222896 0.02883566</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>man<span class="sc">$</span>CHR <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(man<span class="sc">$</span>CHR))</span>
@@ -1843,53 +1843,29 @@ YMF2018_048_S48_R1_001              1</code></pre>
   |                                                                            
   |                                                                      |   0%
   |                                                                            
-  |==                                                                    |   2%
+  |======                                                                |   9%
   |                                                                            
-  |==                                                                    |   3%
+  |=========                                                             |  12%
   |                                                                            
-  |====                                                                  |   5%
+  |===============                                                       |  21%
   |                                                                            
-  |========                                                              |  12%
+  |===================                                                   |  27%
   |                                                                            
-  |===========                                                           |  16%
-  |                                                                            
-  |============                                                          |  17%
-  |                                                                            
-  |=============                                                         |  18%
-  |                                                                            
-  |==============                                                        |  20%
-  |                                                                            
-  |================                                                      |  23%
-  |                                                                            
-  |===================                                                   |  28%
-  |                                                                            
-  |=======================                                               |  32%
+  |=======================                                               |  33%
   |                                                                            
   |========================                                              |  35%
   |                                                                            
-  |==========================                                            |  37%
-  |                                                                            
-  |=============================                                         |  42%
-  |                                                                            
-  |===================================                                   |  51%
+  |===============================                                       |  44%
   |                                                                            
   |=====================================                                 |  53%
   |                                                                            
-  |=======================================                               |  55%
+  |===========================================                           |  62%
   |                                                                            
-  |=============================================                         |  64%
+  |==================================================                    |  71%
   |                                                                            
-  |===================================================                   |  73%
+  |========================================================              |  80%
   |                                                                            
-  |=====================================================                 |  75%
-  |                                                                            
-  |======================================================                |  78%
-  |                                                                            
-  |==========================================================            |  82%
-  |                                                                            
-  |=============================================================         |  87%
-  |                                                                            
-  |===================================================================   |  96%
+  |==============================================================        |  89%
   |                                                                            
   |===================================================================== |  98%
   |                                                                            
@@ -1921,8 +1897,8 @@ YMF2018_048_S48_R1_001              1</code></pre>
 <span id="cb136-24"><a href="#cb136-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">lng2 =</span> <span class="fu">max</span>(merged.tab3<span class="sc">$</span>Long), <span class="at">lat2 =</span> <span class="fu">max</span>(merged.tab3<span class="sc">$</span>Lat)</span>
 <span id="cb136-25"><a href="#cb136-25" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="leaflet html-widget html-fill-item" id="htmlwidget-13eb1cf82f393bca1302" style="width:100%;height:650px;"></div>
-<script type="application/json" data-for="htmlwidget-13eb1cf82f393bca1302">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolygons","args":[[[[{"lng":[-73.72777499999999,-73.482709,-73.550961,-73.5441352908263,-73.5431473462655,-73.536969,-73.5296777143013,-73.5218340787912,-73.520017,-73.51791879063821,-73.505008,-73.487314,-73.231056,-73.12722917087839,-73.053397149764,-72.999549,-72.8636919761087,-72.84714200000001,-72.810078,-72.7747593160786,-72.766739,-72.735496,-72.607933,-72.528131,-72.317148,-72.2053557620642,-72.1357314619467,-71.987326,-71.8460061833253,-71.80065,-71.79924200000001,-71.792767,-71.7896954316824,-71.78967799999999,-71.789356,-71.7893586727423,-71.7935683158896,-71.79768300000001,-71.83964899999999,-71.83595099999999,-71.860513,-71.886302,-71.95674699999999,-72.02189799999999,-72.094443,-72.134221,-72.20142199999999,-72.23553099999999,-72.2483536597,-72.29304399999999,-72.348643,-72.386629,-72.40593,-72.472539,-72.5345648971681,-72.547235,-72.59803599999999,-72.65383799999999,-72.6543540201512,-72.690439,-72.760341,-72.786142,-72.881445,-72.9039337600629,-72.93564600000001,-72.9705054154992,-72.98624700000001,-73.020449,-73.07944999999999,-73.10117382164449,-73.108352,-73.130253,-73.1728353651274,-73.202656,-73.26235800000001,-73.2698175797685,-73.2966013667175,-73.29721438934899,-73.33065999999999,-73.37229600000001,-73.354231,-73.387227,-73.42216500000001,-73.468239,-73.516903,-73.56196799999999,-73.595699,-73.657336,-73.659362,-73.659533,-73.7060285207249,-73.72777499999999],"lat":[41.100696,41.21276,41.295422,41.3664850865317,41.3767706682974,41.441094,41.5271610211283,41.6197480313024,41.641197,41.66672053071,41.823773,42.049638,42.044945,42.0421231483548,42.0401165089147,42.038653,42.0370850109639,42.036894,41.998316,42.0021291041803,42.002995,42.036399,42.030795,42.034295,42.031907,42.0302031125089,42.0291419299417,42.02688,42.0243734650785,42.023569,42.008065,41.807001,41.7251982448091,41.724734,41.59691,41.5968521603427,41.5057530964788,41.416709,41.412119,41.353935,41.320248,41.33641,41.329871,41.316838,41.314164,41.299398,41.315697,41.300413,41.2958716831598,41.280044,41.277446,41.261798,41.278398,41.270103,41.2538242743911,41.250499,41.268698,41.265897,41.2656263083002,41.246697,41.241235,41.264796,41.242597,41.2491941344625,41.258497,41.2412743089963,41.233497,41.206397,41.194015,41.1637262711643,41.153718,41.146797,41.1534422791124,41.158096,41.117496,41.1166768900433,41.1137358575388,41.1136685437012,41.109996,41.10402,41.085639,41.058247,41.047562,41.051347,41.038738,41.016797,41.015995,40.985171,41.004034,41.017857,41.0742979372722,41.100696]}]]],null,null,{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":0.5,"fill":false,"fillColor":"white","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"setMaxBounds","args":[41.8,-72.3,42.1,-71.90000000000001]},{"method":"addCircleMarkers","args":[[41.971298,41.941492,41.941492,41.941492,41.941492,41.917944,41.917944,41.917944,41.917944,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.95461,41.95461,41.95461,41.95461,41.963292,41.963292,41.963292,41.963292,41.942438,41.942438,41.942438,41.942438,41.971298,41.971298,41.971298,41.971298,41.971298,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.94175,41.94175,41.94175,41.94175,41.942438,41.954935,41.954935,41.954935,41.954935,41.957757,41.957757,41.942438,41.942438,41.954935,41.927612,41.962336,41.966787,41.959226,41.959226,41.927612,41.917944,41.917944,41.917944,41.917944,41.94175,41.94175,41.94175,41.94175,41.94175,41.917944,41.919789,41.919789,41.963303,41.963303,41.927612,41.963303,41.963303,41.963303,41.962336,41.962336,41.962336,41.962336,41.962336,41.962336,41.962336,41.957757,41.957757,41.957757,41.927612,41.927612,41.919789,41.919789,41.919789,41.919789,41.966787,41.966787,41.966787,41.954935,41.957757,41.954935,41.919789,41.919789,41.963292,41.963292,41.95461,41.95461,41.95461,41.95461,41.95461,41.971298,41.941492,41.941492,41.941492,41.966787,41.966787,41.966787,41.966787,41.954935,41.954935,41.927612,41.963303,41.959226,41.959226,41.959226,41.959226],[-72.13114400000001,-72.136595,-72.136595,-72.136595,-72.136595,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.141521,-72.141521,-72.141521,-72.141521,-72.149856,-72.149856,-72.149856,-72.149856,-72.129448,-72.129448,-72.129448,-72.129448,-72.13114400000001,-72.13114400000001,-72.13114400000001,-72.13114400000001,-72.13114400000001,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.13758,-72.13758,-72.13758,-72.13758,-72.129448,-72.12360200000001,-72.12360200000001,-72.12360200000001,-72.12360200000001,-72.131981,-72.131981,-72.129448,-72.129448,-72.12360200000001,-72.157826,-72.125694,-72.150593,-72.146056,-72.146056,-72.157826,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.13758,-72.13758,-72.13758,-72.13758,-72.13758,-72.14963400000001,-72.160476,-72.160476,-72.151352,-72.151352,-72.157826,-72.151352,-72.151352,-72.151352,-72.125694,-72.125694,-72.125694,-72.125694,-72.125694,-72.125694,-72.125694,-72.131981,-72.131981,-72.131981,-72.157826,-72.157826,-72.160476,-72.160476,-72.160476,-72.160476,-72.150593,-72.150593,-72.150593,-72.12360200000001,-72.131981,-72.12360200000001,-72.160476,-72.160476,-72.149856,-72.149856,-72.141521,-72.141521,-72.141521,-72.141521,-72.141521,-72.13114400000001,-72.136595,-72.136595,-72.136595,-72.150593,-72.150593,-72.150593,-72.150593,-72.12360200000001,-72.12360200000001,-72.157826,-72.151352,-72.146056,-72.146056,-72.146056,-72.146056],6,null,null,{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":0.5,"fill":true,"fillColor":"red","fillOpacity":0.8},null,null,["WM","FE","FE","FE","FE","BO","BO","BO","BO","AW","AW","AW","AW","AW","AW","AW","AW","AW","AW","X7","X7","X7","X7","X7","X7","X7","X7","X7","X9","X9","X9","X9","E8","E8","E8","E8","WP","WP","WP","WP","WM","WM","WM","WM","WM","T5","T5","T5","T5","T5","T5","T5","T5","T5","SH","SH","SH","SH","WP","BS","BS","BS","BS","LA","LA","WP","WP","BS","KE","PB","LO","A10","A10","KE","BO","BO","BO","BO","SH","SH","SH","SH","SH","BO","WF","WF","DT","DT","KE","DT","DT","DT","PB","PB","PB","PB","PB","PB","PB","LA","LA","LA","KE","KE","WF","WF","WF","WF","LO","LO","LO","BS","LA","BS","WF","WF","E8","E8","X9","X9","X9","X9","X9","WM","FE","FE","FE","LO","LO","LO","LO","BS","BS","KE","DT","A10","A10","A10","A10"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[40.985171,42.049638],"lng":[-73.72777499999999,-71.789356]},"fitBounds":[41.917944,-72.160476,41.971298,-72.12360200000001,[]]},"evals":[],"jsHooks":[]}</script>
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-4c1a7f0540ceeb37d251" style="width:100%;height:650px;"></div>
+<script type="application/json" data-for="htmlwidget-4c1a7f0540ceeb37d251">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolygons","args":[[[[{"lng":[-73.72777499999999,-73.482709,-73.550961,-73.5441352908263,-73.5431473462655,-73.536969,-73.5296777143013,-73.5218340787912,-73.520017,-73.51791879063821,-73.505008,-73.487314,-73.231056,-73.12722917087839,-73.053397149764,-72.999549,-72.8636919761087,-72.84714200000001,-72.810078,-72.7747593160786,-72.766739,-72.735496,-72.607933,-72.528131,-72.317148,-72.2053557620642,-72.1357314619467,-71.987326,-71.8460061833253,-71.80065,-71.79924200000001,-71.792767,-71.7896954316824,-71.78967799999999,-71.789356,-71.7893586727423,-71.7935683158896,-71.79768300000001,-71.83964899999999,-71.83595099999999,-71.860513,-71.886302,-71.95674699999999,-72.02189799999999,-72.094443,-72.134221,-72.20142199999999,-72.23553099999999,-72.2483536597,-72.29304399999999,-72.348643,-72.386629,-72.40593,-72.472539,-72.5345648971681,-72.547235,-72.59803599999999,-72.65383799999999,-72.6543540201512,-72.690439,-72.760341,-72.786142,-72.881445,-72.9039337600629,-72.93564600000001,-72.9705054154992,-72.98624700000001,-73.020449,-73.07944999999999,-73.10117382164449,-73.108352,-73.130253,-73.1728353651274,-73.202656,-73.26235800000001,-73.2698175797685,-73.2966013667175,-73.29721438934899,-73.33065999999999,-73.37229600000001,-73.354231,-73.387227,-73.42216500000001,-73.468239,-73.516903,-73.56196799999999,-73.595699,-73.657336,-73.659362,-73.659533,-73.7060285207249,-73.72777499999999],"lat":[41.100696,41.21276,41.295422,41.3664850865317,41.3767706682974,41.441094,41.5271610211283,41.6197480313024,41.641197,41.66672053071,41.823773,42.049638,42.044945,42.0421231483548,42.0401165089147,42.038653,42.0370850109639,42.036894,41.998316,42.0021291041803,42.002995,42.036399,42.030795,42.034295,42.031907,42.0302031125089,42.0291419299417,42.02688,42.0243734650785,42.023569,42.008065,41.807001,41.7251982448091,41.724734,41.59691,41.5968521603427,41.5057530964788,41.416709,41.412119,41.353935,41.320248,41.33641,41.329871,41.316838,41.314164,41.299398,41.315697,41.300413,41.2958716831598,41.280044,41.277446,41.261798,41.278398,41.270103,41.2538242743911,41.250499,41.268698,41.265897,41.2656263083002,41.246697,41.241235,41.264796,41.242597,41.2491941344625,41.258497,41.2412743089963,41.233497,41.206397,41.194015,41.1637262711643,41.153718,41.146797,41.1534422791124,41.158096,41.117496,41.1166768900433,41.1137358575388,41.1136685437012,41.109996,41.10402,41.085639,41.058247,41.047562,41.051347,41.038738,41.016797,41.015995,40.985171,41.004034,41.017857,41.0742979372722,41.100696]}]]],null,null,{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":0.5,"fill":false,"fillColor":"white","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"setMaxBounds","args":[41.8,-72.3,42.1,-71.90000000000001]},{"method":"addCircleMarkers","args":[[41.971298,41.941492,41.941492,41.941492,41.941492,41.917944,41.917944,41.917944,41.917944,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.965199,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.953734,41.95461,41.95461,41.95461,41.95461,41.963292,41.963292,41.963292,41.963292,41.942438,41.942438,41.942438,41.942438,41.971298,41.971298,41.971298,41.971298,41.971298,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.948315,41.94175,41.94175,41.94175,41.94175,41.942438,41.954935,41.954935,41.954935,41.954935,41.957757,41.957757,41.942438,41.942438,41.954935,41.927612,41.962336,41.966787,41.959226,41.959226,41.927612,41.917944,41.917944,41.917944,41.917944,41.94175,41.94175,41.94175,41.94175,41.94175,41.917944,41.919789,41.919789,41.963303,41.963303,41.927612,41.963303,41.963303,41.963303,41.962336,41.962336,41.962336,41.962336,41.962336,41.962336,41.962336,41.957757,41.957757,41.957757,41.927612,41.927612,41.919789,41.919789,41.919789,41.919789,41.966787,41.966787,41.966787,41.954935,41.957757,41.954935,41.919789,41.919789,41.963292,41.963292,41.95461,41.95461,41.95461,41.95461,41.95461,41.971298,41.941492,41.941492,41.941492,41.966787,41.966787,41.966787,41.966787,41.954935,41.954935,41.927612,41.963303,41.959226,41.959226,41.959226,41.959226],[-72.13114400000001,-72.136595,-72.136595,-72.136595,-72.136595,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.152293,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.13925500000001,-72.141521,-72.141521,-72.141521,-72.141521,-72.149856,-72.149856,-72.149856,-72.149856,-72.129448,-72.129448,-72.129448,-72.129448,-72.13114400000001,-72.13114400000001,-72.13114400000001,-72.13114400000001,-72.13114400000001,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.126783,-72.13758,-72.13758,-72.13758,-72.13758,-72.129448,-72.12360200000001,-72.12360200000001,-72.12360200000001,-72.12360200000001,-72.131981,-72.131981,-72.129448,-72.129448,-72.12360200000001,-72.157826,-72.125694,-72.150593,-72.146056,-72.146056,-72.157826,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.14963400000001,-72.13758,-72.13758,-72.13758,-72.13758,-72.13758,-72.14963400000001,-72.160476,-72.160476,-72.151352,-72.151352,-72.157826,-72.151352,-72.151352,-72.151352,-72.125694,-72.125694,-72.125694,-72.125694,-72.125694,-72.125694,-72.125694,-72.131981,-72.131981,-72.131981,-72.157826,-72.157826,-72.160476,-72.160476,-72.160476,-72.160476,-72.150593,-72.150593,-72.150593,-72.12360200000001,-72.131981,-72.12360200000001,-72.160476,-72.160476,-72.149856,-72.149856,-72.141521,-72.141521,-72.141521,-72.141521,-72.141521,-72.13114400000001,-72.136595,-72.136595,-72.136595,-72.150593,-72.150593,-72.150593,-72.150593,-72.12360200000001,-72.12360200000001,-72.157826,-72.151352,-72.146056,-72.146056,-72.146056,-72.146056],6,null,null,{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":0.5,"fill":true,"fillColor":"red","fillOpacity":0.8},null,null,["WM","FE","FE","FE","FE","BO","BO","BO","BO","AW","AW","AW","AW","AW","AW","AW","AW","AW","AW","X7","X7","X7","X7","X7","X7","X7","X7","X7","X9","X9","X9","X9","E8","E8","E8","E8","WP","WP","WP","WP","WM","WM","WM","WM","WM","T5","T5","T5","T5","T5","T5","T5","T5","T5","SH","SH","SH","SH","WP","BS","BS","BS","BS","LA","LA","WP","WP","BS","KE","PB","LO","A10","A10","KE","BO","BO","BO","BO","SH","SH","SH","SH","SH","BO","WF","WF","DT","DT","KE","DT","DT","DT","PB","PB","PB","PB","PB","PB","PB","LA","LA","LA","KE","KE","WF","WF","WF","WF","LO","LO","LO","BS","LA","BS","WF","WF","E8","E8","X9","X9","X9","X9","X9","WM","FE","FE","FE","LO","LO","LO","LO","BS","BS","KE","DT","A10","A10","A10","A10"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[40.985171,42.049638],"lng":[-73.72777499999999,-71.789356]},"fitBounds":[41.917944,-72.160476,41.971298,-72.12360200000001,[]]},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -2133,7 +2109,7 @@ Scaled residuals:
 
 Random effects:
  Groups            Name        Variance Std.Dev.
- Population:Family (Intercept) 0.179422 0.4236  
+ Population:Family (Intercept) 0.179421 0.4236  
  Population        (Intercept) 0.004356 0.0660  
  Residual                      0.337490 0.5809  
 Number of obs: 551, groups:  Population:Family, 98; Population, 5
@@ -2147,9 +2123,9 @@ Fixed effects:
 <span id="cb164-3"><a href="#cb164-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(devel_var.comp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                grp        var1 var2        vcov      sdcor
-1 Population:Family (Intercept) &lt;NA&gt; 0.179421938 0.42358227
-2        Population (Intercept) &lt;NA&gt; 0.004356297 0.06600225
-3          Residual        &lt;NA&gt; &lt;NA&gt; 0.337490177 0.58093905</code></pre>
+1 Population:Family (Intercept) &lt;NA&gt; 0.179421443 0.42358168
+2        Population (Intercept) &lt;NA&gt; 0.004355787 0.06599838
+3          Residual        &lt;NA&gt; &lt;NA&gt; 0.337490403 0.58093924</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb166"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href="#cb166-1" aria-hidden="true" tabindex="-1"></a><span class="do">## variables for Qst calculation:</span></span>
 <span id="cb166-2"><a href="#cb166-2" aria-hidden="true" tabindex="-1"></a><span class="do">## sigma2_between (Population variance)</span></span>
@@ -2167,7 +2143,7 @@ Fixed effects:
 <span id="cb166-14"><a href="#cb166-14" aria-hidden="true" tabindex="-1"></a>qst <span class="ot">&lt;-</span> var_pop <span class="sc">/</span> (var_pop <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> va_est)</span>
 <span id="cb166-15"><a href="#cb166-15" aria-hidden="true" tabindex="-1"></a>qst</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.006033284</code></pre>
+<pre><code>[1] 0.006032598</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb168"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a><span class="do">## calculating overall Fst for the same populations</span></span>
 <span id="cb168-2"><a href="#cb168-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2257,15 +2233,15 @@ boot(data = devel_cleaned, statistic = qst_boot_func, R = 1000)
 
 
 Bootstrap Statistics :
-       original        bias    std. error
-t1* 0.006033284 -0.0001971427 0.006550996</code></pre>
+       original       bias    std. error
+t1* 0.006032598 2.243203e-05 0.006737278</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb176"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href="#cb176-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 95% Confidence Intervals</span></span>
 <span id="cb176-2"><a href="#cb176-2" aria-hidden="true" tabindex="-1"></a>boot_ci_results <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(boot_results, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"perc"</span>, <span class="st">"bca"</span>))</span>
 <span id="cb176-3"><a href="#cb176-3" aria-hidden="true" tabindex="-1"></a>boot_ci_results<span class="sc">$</span>bca</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     conf                         
-[1,] 0.95 86.3 995.83 0 0.03000525</code></pre>
+<pre><code>     conf                          
+[1,] 0.95 60.25 992.25 0 0.02727353</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="do">## comparing Qst and Fst for the trait</span></span>
 <span id="cb178-2"><a href="#cb178-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2278,7 +2254,7 @@ t1* 0.006033284 -0.0001971427 0.006550996</code></pre>
 <span id="cb178-9"><a href="#cb178-9" aria-hidden="true" tabindex="-1"></a>ET.tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait         Qst Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006033284         0 0.03000525 0.01541326 0.01267776 0.01869575</code></pre>
+1    ET 0.006032598         0 0.02727353 0.01541326 0.01260715 0.01870755</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -2602,14 +2578,14 @@ boot(data = EP, statistic = qst_boot_func, R = 1000)
 
 Bootstrap Statistics :
       original       bias    std. error
-t1* 0.02227696 -0.002345901 0.007730144</code></pre>
+t1* 0.02227696 -0.002516071 0.007721118</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb209"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb209-1"><a href="#cb209-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 95% Confidence Intervals</span></span>
 <span id="cb209-2"><a href="#cb209-2" aria-hidden="true" tabindex="-1"></a>boot_ci_results <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(boot_results, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"perc"</span>, <span class="st">"bca"</span>))</span>
 <span id="cb209-3"><a href="#cb209-3" aria-hidden="true" tabindex="-1"></a>boot_ci_results<span class="sc">$</span>bca</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     conf                                    
-[1,] 0.95 108.87 997.18 0.01063094 0.04309815</code></pre>
+[1,] 0.95 126.21 998.12 0.01084292 0.04390679</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb211"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb211-1"><a href="#cb211-1" aria-hidden="true" tabindex="-1"></a><span class="do">## comparing Qst and Fst for the trait</span></span>
 <span id="cb211-2"><a href="#cb211-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2622,7 +2598,7 @@ t1* 0.02227696 -0.002345901 0.007730144</code></pre>
 <span id="cb211-9"><a href="#cb211-9" aria-hidden="true" tabindex="-1"></a>EP.tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait        Qst  Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    EP 0.02227696 0.01063094 0.04309815 0.01541326 0.01267776 0.01869575</code></pre>
+1    EP 0.02227696 0.01084292 0.04390679 0.01541326 0.01260715 0.01870755</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -2632,8 +2608,8 @@ t1* 0.02227696 -0.002345901 0.007730144</code></pre>
 <span id="cb213-4"><a href="#cb213-4" aria-hidden="true" tabindex="-1"></a>traits_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait         Qst  Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006033284 0.00000000 0.03000525 0.01541326 0.01267776 0.01869575
-2    EP 0.022276958 0.01063094 0.04309815 0.01541326 0.01267776 0.01869575</code></pre>
+1    ET 0.006032598 0.00000000 0.02727353 0.01541326 0.01260715 0.01870755
+2    EP 0.022276958 0.01084292 0.04390679 0.01541326 0.01260715 0.01870755</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb215"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb215-1"><a href="#cb215-1" aria-hidden="true" tabindex="-1"></a><span class="do">## plotting Qst and Fst for different traits</span></span>
 <span id="cb215-2"><a href="#cb215-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2675,39 +2651,52 @@ t1* 0.02227696 -0.002345901 0.007730144</code></pre>
 <div class="sourceCode cell-code" id="cb216"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb216-1"><a href="#cb216-1" aria-hidden="true" tabindex="-1"></a><span class="do">## setting up tables to visualize results</span></span>
 <span id="cb216-2"><a href="#cb216-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb216-3"><a href="#cb216-3" aria-hidden="true" tabindex="-1"></a>traits_tab <span class="ot">&lt;-</span> <span class="fu">rbind</span>(ET.tab, EP.tab)</span>
-<span id="cb216-4"><a href="#cb216-4" aria-hidden="true" tabindex="-1"></a>traits_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  Trait         Qst  Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006033284 0.00000000 0.03000525 0.01541326 0.01267776 0.01869575
-2    EP 0.022276958 0.01063094 0.04309815 0.01541326 0.01267776 0.01869575</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb218"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb218-1"><a href="#cb218-1" aria-hidden="true" tabindex="-1"></a><span class="do">## plotting Qst and Fst for different traits</span></span>
-<span id="cb218-2"><a href="#cb218-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb218-3"><a href="#cb218-3" aria-hidden="true" tabindex="-1"></a>mp <span class="ot">&lt;-</span> <span class="fu">barplot</span>(<span class="fu">c</span>(traits_tab<span class="sc">$</span>Qst[<span class="dv">2</span>], traits_tab<span class="sc">$</span>Fst[<span class="dv">2</span>]), <span class="at">space =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb218-4"><a href="#cb218-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"white"</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.00</span>, <span class="fl">0.050</span>),</span>
-<span id="cb218-5"><a href="#cb218-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">border =</span> <span class="cn">FALSE</span>, <span class="at">las =</span> <span class="dv">1</span>, <span class="at">axes =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb218-6"><a href="#cb218-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb218-7"><a href="#cb218-7" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
-<span id="cb218-8"><a href="#cb218-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb218-9"><a href="#cb218-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb218-10"><a href="#cb218-10" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="fu">c</span>(traits_tab<span class="sc">$</span>Qst[<span class="dv">2</span>], traits_tab<span class="sc">$</span>Fst[<span class="dv">2</span>]), <span class="at">space =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb218-11"><a href="#cb218-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"gray"</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.00</span>, <span class="fl">0.050</span>), <span class="at">las =</span> <span class="dv">1</span>,</span>
-<span id="cb218-12"><a href="#cb218-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">border =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb218-13"><a href="#cb218-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Mean value based on 1000 boostrap iterations"</span>)</span>
-<span id="cb218-14"><a href="#cb218-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb218-15"><a href="#cb218-15" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">1</span>], <span class="at">y0 =</span> traits_tab<span class="sc">$</span>Qst_ci_ll[<span class="dv">2</span>],</span>
-<span id="cb218-16"><a href="#cb218-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x1 =</span> mp[<span class="dv">1</span>], <span class="at">y1 =</span> traits_tab<span class="sc">$</span>Qst_ci_ul[<span class="dv">2</span>],</span>
-<span id="cb218-17"><a href="#cb218-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
-<span id="cb218-18"><a href="#cb218-18" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">2</span>], <span class="at">y0 =</span> traits_tab<span class="sc">$</span>Fst_ci_ll, <span class="at">x1 =</span> mp[<span class="dv">2</span>],</span>
-<span id="cb218-19"><a href="#cb218-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">y1 =</span> traits_tab<span class="sc">$</span>Fst_ci_ul, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>,</span>
-<span id="cb218-20"><a href="#cb218-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
-<span id="cb218-21"><a href="#cb218-21" aria-hidden="true" tabindex="-1"></a><span class="fu">box</span>()</span>
-<span id="cb218-22"><a href="#cb218-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb218-23"><a href="#cb218-23" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="at">side =</span> <span class="dv">1</span>, <span class="at">at =</span> mp,</span>
-<span id="cb218-24"><a href="#cb218-24" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st])<span class="sc">~</span>EP), <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"F"</span>[st]))),</span>
-<span id="cb218-25"><a href="#cb218-25" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="dv">1</span>)</span>
-<span id="cb218-26"><a href="#cb218-26" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">y =</span> <span class="fl">0.035</span>, <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st])<span class="sc">%~~%</span><span class="fu">italic</span>(<span class="st">"F"</span>[st])),</span>
-<span id="cb218-27"><a href="#cb218-27" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb216-4"><a href="#cb216-4" aria-hidden="true" tabindex="-1"></a>traits_tab1 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(traits_tab<span class="sc">$</span>Qst[<span class="dv">1</span>], traits_tab<span class="sc">$</span>Fst[<span class="dv">1</span>],</span>
+<span id="cb216-5"><a href="#cb216-5" aria-hidden="true" tabindex="-1"></a>                       traits_tab<span class="sc">$</span>Qst[<span class="dv">2</span>], traits_tab<span class="sc">$</span>Fst[<span class="dv">2</span>]), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb216-6"><a href="#cb216-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">byrow =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb216-7"><a href="#cb216-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(traits_tab1) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ET"</span>, <span class="st">"EP"</span>)</span>
+<span id="cb216-8"><a href="#cb216-8" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(traits_tab1) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"mean Qst"</span>, <span class="st">"mean Fst"</span>)</span>
+<span id="cb216-9"><a href="#cb216-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-10"><a href="#cb216-10" aria-hidden="true" tabindex="-1"></a><span class="do">## plotting Qst and Fst for different traits</span></span>
+<span id="cb216-11"><a href="#cb216-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-12"><a href="#cb216-12" aria-hidden="true" tabindex="-1"></a>mp <span class="ot">&lt;-</span> <span class="fu">barplot</span>(traits_tab1,</span>
+<span id="cb216-13"><a href="#cb216-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.00</span>, <span class="fl">0.050</span>), <span class="at">beside =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb216-14"><a href="#cb216-14" aria-hidden="true" tabindex="-1"></a>              <span class="at">border =</span> <span class="cn">FALSE</span>, <span class="at">las =</span> <span class="dv">1</span>, <span class="at">axes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb216-15"><a href="#cb216-15" aria-hidden="true" tabindex="-1"></a>              <span class="at">xaxt =</span> <span class="st">"n"</span>)</span>
+<span id="cb216-16"><a href="#cb216-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-17"><a href="#cb216-17" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb216-18"><a href="#cb216-18" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb216-19"><a href="#cb216-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-20"><a href="#cb216-20" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(traits_tab1,</span>
+<span id="cb216-21"><a href="#cb216-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.00</span>, <span class="fl">0.050</span>), <span class="at">las =</span> <span class="dv">1</span>, <span class="at">xaxt =</span> <span class="st">"n"</span>,</span>
+<span id="cb216-22"><a href="#cb216-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"gray"</span>, <span class="st">"tan3"</span>, <span class="st">"gray"</span>),</span>
+<span id="cb216-23"><a href="#cb216-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">border =</span> <span class="cn">FALSE</span>, <span class="at">beside =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb216-24"><a href="#cb216-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Mean value based on 1000 boostrap iterations"</span>)</span>
+<span id="cb216-25"><a href="#cb216-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-26"><a href="#cb216-26" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">1</span>, <span class="dv">1</span>], <span class="at">y0 =</span> traits_tab<span class="sc">$</span>Qst_ci_ll[<span class="dv">1</span>],</span>
+<span id="cb216-27"><a href="#cb216-27" aria-hidden="true" tabindex="-1"></a>       <span class="at">x1 =</span> mp[<span class="dv">1</span>, <span class="dv">1</span>], <span class="at">y1 =</span> traits_tab<span class="sc">$</span>Qst_ci_ul[<span class="dv">1</span>],</span>
+<span id="cb216-28"><a href="#cb216-28" aria-hidden="true" tabindex="-1"></a>       <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb216-29"><a href="#cb216-29" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">2</span>, <span class="dv">1</span>], <span class="at">y0 =</span> traits_tab<span class="sc">$</span>Fst_ci_ll[<span class="dv">1</span>],</span>
+<span id="cb216-30"><a href="#cb216-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">x1 =</span> mp[<span class="dv">2</span>, <span class="dv">1</span>], <span class="at">y1 =</span> traits_tab<span class="sc">$</span>Fst_ci_ul[<span class="dv">1</span>],</span>
+<span id="cb216-31"><a href="#cb216-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb216-32"><a href="#cb216-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-33"><a href="#cb216-33" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">1</span>, <span class="dv">2</span>], <span class="at">y0 =</span> traits_tab<span class="sc">$</span>Qst_ci_ll[<span class="dv">2</span>], <span class="at">x1 =</span> mp[<span class="dv">1</span>, <span class="dv">2</span>],</span>
+<span id="cb216-34"><a href="#cb216-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">y1 =</span> traits_tab<span class="sc">$</span>Qst_ci_ul[<span class="dv">2</span>], <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>,</span>
+<span id="cb216-35"><a href="#cb216-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb216-36"><a href="#cb216-36" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">2</span>, <span class="dv">2</span>], <span class="at">y0 =</span> traits_tab<span class="sc">$</span>Fst_ci_ll[<span class="dv">2</span>],</span>
+<span id="cb216-37"><a href="#cb216-37" aria-hidden="true" tabindex="-1"></a>       <span class="at">x1 =</span> mp[<span class="dv">2</span>, <span class="dv">2</span>], <span class="at">y1 =</span> traits_tab<span class="sc">$</span>Fst_ci_ul[<span class="dv">2</span>],</span>
+<span id="cb216-38"><a href="#cb216-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb216-39"><a href="#cb216-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-40"><a href="#cb216-40" aria-hidden="true" tabindex="-1"></a><span class="fu">box</span>()</span>
+<span id="cb216-41"><a href="#cb216-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-42"><a href="#cb216-42" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="at">side =</span> <span class="dv">1</span>, <span class="at">at =</span> mp,</span>
+<span id="cb216-43"><a href="#cb216-43" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st])<span class="sc">~</span>ET), <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"F"</span>[st])),</span>
+<span id="cb216-44"><a href="#cb216-44" aria-hidden="true" tabindex="-1"></a>                <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st])<span class="sc">~</span>EP), <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"F"</span>[st]))),</span>
+<span id="cb216-45"><a href="#cb216-45" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="dv">1</span>)</span>
+<span id="cb216-46"><a href="#cb216-46" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> <span class="fl">0.035</span>, <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st]<span class="sc">~</span>ET)<span class="sc">%~~%</span><span class="fu">italic</span>(<span class="st">"F"</span>[st])),</span>
+<span id="cb216-47"><a href="#cb216-47" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="fl">1.5</span>)</span>
+<span id="cb216-48"><a href="#cb216-48" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="fl">5.3</span>, <span class="at">y =</span> <span class="fl">0.035</span>, <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st]<span class="sc">~</span>EP)<span class="sc">%~~%</span><span class="fu">italic</span>(<span class="st">"F"</span>[st])),</span>
+<span id="cb216-49"><a href="#cb216-49" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">

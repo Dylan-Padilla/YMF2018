@@ -615,7 +615,7 @@ for(i in 1:n_pops){
           col = "tan", border = "chocolate4")
     text(i, t_div * 0.05, labels = round(pop_sizes[i], 0), 
        cex = 0.6, font = 2, col = "chocolate4")
-  text(i, t_div*0.05+10, labels = rep(expression(italic(N[e])), 5), 
+  text(i, t_div*0.05+3, labels = rep(expression(italic(N[e])), 5), 
        cex = 0.6, font = 2, col = "chocolate4")
 }
 
@@ -625,9 +625,9 @@ aw <- n_anc_width / 2
 polygon(c(trunk_center - aw, trunk_center + aw, trunk_center + aw, trunk_center - aw),
         c(t_div, t_div, t_div * 1.5, t_div * 1.5),
         col = "tan", border = "chocolate4")
-NANC <- "4024"
-text(trunk_center, t_div+30, NANC, font = 2, cex = 0.6, col = "chocolate4")
-text(trunk_center, t_div+40, expression(italic("N"[e])), font = 2, cex = 0.6,
+NANC <- "1119"
+text(trunk_center, t_div+5, NANC, font = 2, cex = 0.6, col = "chocolate4")
+text(trunk_center, t_div+8, expression(italic("N"[e])), font = 2, cex = 0.6,
                                         col = "chocolate4")
 
 ## drawing phylogenetic merge lines
@@ -652,10 +652,15 @@ text(x = 1:n_pops+0.1, y = -t_div * 0.08, labels = pop_labels,
 
 ## calculating heterozygosity per site
 
-aRanSyl_he <- basic.stats(aRanSyl_genind_pops, diploid = TRUE)
-he_aRanSyl <- apply(aRanSyl_he$Ho, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
+aRanSyl_stats <- basic.stats(aRanSyl_genind_pops, diploid = TRUE)
+ho_aRanSyl <- apply(aRanSyl_stats$Ho, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
     round(digits = 2)
 
+he_aRanSyl <- apply(aRanSyl_stats$Hs, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
+    round(digits = 2)
+
+het <- rbind(ho_aRanSyl, he_aRanSyl)
+class(het)
 
 ## calculating inbreeding coefficient (Fis)
 
@@ -669,8 +674,9 @@ aRanSyl_Fis <- apply(aRanSyl_he$Fis, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
 
 ## plotting
 
-mp <- barplot(he_aRanSyl, ylim = c(0, 0.2), las = 1,
-              ylab = "Observed heterozygocity", xaxt = "n")
+mp <- barplot(het, ylim = c(0, 0.2), las = 1, beside = TRUE, border = FALSE,
+              ylab = "Heterozygocity", xaxt = "n", col = c("white", "white"))
+
 
 mp2 <- barplot(aRanSyl_Fis, ylim = c(0, 0.2), las = 1,
               ylab = expression("Inbreeding coefficient"~(F[IS])), xaxt = "n")
@@ -682,19 +688,19 @@ mp2 <- barplot(aRanSyl_Fis, ylim = c(0, 0.2), las = 1,
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
-barplot(he_aRanSyl, ylim = c(0, 0.2), las = 1,
-        ylab = "Observed heterozygocity", xaxt = "n",
-        col = "white", yaxt = "n", border = FALSE)
+barplot(het, ylim = c(0, 0.2), las = 1, beside = TRUE, border = FALSE,
+        ylab = "Heterozygocity", xaxt = "n", col = c("white", "white"))
 
 grid()
 par(new = TRUE)
 
-barplot(he_aRanSyl, ylim = c(0, 0.2), las = 1,
-        xaxt = "n", ylab = "")
+barplot(het, ylim = c(0, 0.2), las = 1, yaxt = "n", ylab = "",
+        xaxt = "n", beside = TRUE)
 
 box()
-axis(side = 1, at = mp, labels = names(he_aRanSyl), cex.axis = 0.5)
-mtext(side = 1, 'Pond', line = 2)
+axis(side = 1, at = mp[1, ]+0.5, labels = colnames(het), cex.axis = 0.5)
+legend("topleft", legend = c("observed", "expected"), pch = 15, bty = "n",
+       cex = 0.8, col = c(gray(0.3), gray(0.9)))
 
 ```
 
@@ -1593,6 +1599,58 @@ legend("topleft", legend = c("Fst", "Qst"), lty = 1, pch = 16, bty = "n",
 
 
 ## setting up tables to visualize results
+
+traits_tab <- rbind(ET.tab, EP.tab)
+traits_tab1 <- matrix(c(traits_tab$Qst[1], traits_tab$Fst[1],
+                       traits_tab$Qst[2], traits_tab$Fst[2]), ncol = 2, nrow = 2,
+                     byrow = FALSE)
+colnames(traits_tab1) <- c("ET", "EP")
+rownames(traits_tab1) <- c("mean Qst", "mean Fst")
+
+## plotting Qst and Fst for different traits
+
+mp <- barplot(traits_tab1,
+              ylim = c(0.00, 0.050), beside = TRUE,
+              border = FALSE, las = 1, axes = FALSE,
+              xaxt = "n")
+
+grid()
+par(new = TRUE)
+
+barplot(traits_tab1,
+        ylim = c(0.00, 0.050), las = 1, xaxt = "n",
+        col = c("black", "gray", "tan3", "gray"),
+        xlab = "", border = FALSE, beside = TRUE,
+        ylab = "Mean value based on 1000 boostrap iterations")
+
+arrows(x0 = mp[1, 1], y0 = traits_tab$Qst_ci_ll[1],
+       x1 = mp[1, 1], y1 = traits_tab$Qst_ci_ul[1],
+       code = 3, angle = 90, length = 0.1, col = "red")
+arrows(x0 = mp[2, 1], y0 = traits_tab$Fst_ci_ll[1],
+       x1 = mp[2, 1], y1 = traits_tab$Fst_ci_ul[1],
+       code = 3, angle = 90, length = 0.1, col = "red")
+
+arrows(x0 = mp[1, 2], y0 = traits_tab$Qst_ci_ll[2], x1 = mp[1, 2],
+       y1 = traits_tab$Qst_ci_ul[2], code = 3, angle = 90,
+       length = 0.1, col = "red")
+arrows(x0 = mp[2, 2], y0 = traits_tab$Fst_ci_ll[2],
+       x1 = mp[2, 2], y1 = traits_tab$Fst_ci_ul[2],
+       code = 3, angle = 90, length = 0.1, col = "red")
+
+box()
+
+axis(side = 1, at = mp,
+     labels = c(expression(italic("Q"[st])~ET), expression(italic("F"[st])),
+                expression(italic("Q"[st])~EP), expression(italic("F"[st]))),
+     cex = 1)
+text(x = 2, y = 0.035, expression(italic("Q"[st]~ET)%~~%italic("F"[st])),
+     cex = 1.5)
+text(x = 5.3, y = 0.035, expression(italic("Q"[st]~EP)%~~%italic("F"[st])),
+     cex = 1.5)
+
+```
+
+```{r echo FALSE, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, include = FALSE}
 
 traits_tab <- rbind(ET.tab, EP.tab)
 traits_tab
