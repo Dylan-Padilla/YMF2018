@@ -1,9 +1,11 @@
 ---
-title: "Yale Myers Forest - Wood Frog Pop Gen Analyses"
-author: "Dylan Padilla"
-institute: "Yale School of the Environment, Yale University, New Haven, CT 06511"
+title: "Yale-Myers Forest - Wood Frog Pop Gen Analyses"
+author: "Dylan Padilla <br> (dylan.padilla@yale.edu)"
+institute: "Yale School of the Environment <br> Yale University <br> New Haven, CT 06511"
 format: html
 ---
+
+![](imgs/yale-logo.png)
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
@@ -650,6 +652,104 @@ text(x = 1:n_pops+0.1, y = -t_div * 0.08, labels = pop_labels,
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
+## function to clean and read the SLiM output file
+read_slim_output <- function(filename) {
+  # Read all lines into a vector
+  all_lines <- readLines(filename)
+  
+  ## find the index of the line that contains column headers
+  header_index <- which(grepl("generation,fst", all_lines))[1]
+  
+  ## check if header was found
+  if (is.na(header_index)) {
+    stop(paste("Could not find the header 'generation,fst' in", filename))
+  }
+  
+  ## keep only the header and the rows below it
+  data_lines <- all_lines[header_index:length(all_lines)]
+  
+  ## filter out any non-data lines at the end (like "SIGNIFICANT DIFFERENTIATION REACHED")
+  ## we only keep the header line and lines that look like: number,number
+  data_lines <- data_lines[grepl("^generation,fst$|^[0-9.-]+,[0-9.-]+", data_lines)]
+  
+  ## convert the cleaned lines into a data frame
+  df <- read.csv(text = data_lines, header = TRUE)
+  return(df)
+}
+
+## load all the run files (e.g., run_1.csv, run_2.csv, etc.)
+files <- list.files(path = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/scripts/slim/",
+                    pattern = "run_.*\\.csv", full.names = TRUE)
+all_runs_list <- lapply(files, function(f) {
+  df <- read_slim_output(f)
+  df$run_id <- f  # add a column to track which run this is
+  return(df)
+})
+
+## create the all_data object by merging the list
+all_data <- do.call(rbind, all_runs_list)
+
+## aggregate the data (calculate mean and SD per generation)
+means <- aggregate(fst ~ generation, data = all_data, FUN = mean)
+sds   <- aggregate(fst ~ generation, data = all_data, FUN = sd)
+counts <- aggregate(fst ~ generation, data = all_data, FUN = length)
+
+## merge these into a summary table and calculate CI
+summary_stats <- means
+names(summary_stats)[2] <- "mean_fst"
+summary_stats$sd <- sds$fst
+summary_stats$n  <- counts$fst
+
+## calculate 95% CI: Mean +/- (1.96 * (SD / sqrt(n)))
+summary_stats$se <- summary_stats$sd / sqrt(summary_stats$n)
+summary_stats$lower <- summary_stats$mean_fst - (1.96 * summary_stats$se)
+summary_stats$upper <- summary_stats$mean_fst + (1.96 * summary_stats$se)
+
+## sort by generation (CRITICAL for polygon() to work)
+summary_stats <- summary_stats[order(summary_stats$generation), ]
+head(summary_stats)
+tail(summary_stats)
+
+
+## initialize the plot area
+## we set ylim to slightly above the upper CI to ensure everything fits
+plot(summary_stats$generation, summary_stats$mean_fst, type = "n",
+     ylim = c(0, max(summary_stats$upper, na.rm = TRUE, 0.11)),
+     xlab = "Generations since split",
+     ylab = expression(Pairwise~italic(F[st])~between~DT~and~E8),
+     las = 1)
+
+## draw the smooth CI envelope
+## we  use na.omit to prevent gaps if some generations have NAs
+clean_stats <- na.omit(summary_stats)
+polygon(c(clean_stats$generation, rev(clean_stats$generation)),
+        c(clean_stats$upper, rev(clean_stats$lower)),
+        col = rgb(0, 0, 1, 0.2), border = NA)
+## add the mean Line
+lines(summary_stats$generation, summary_stats$mean_fst, 
+      col = "blue", lwd = 2)
+
+## add the threshold line (0.09)
+abline(h = 0.09, col = "red", lty = 2, lwd = 1.5)
+
+## add legend and grid
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+legend("topleft", 
+       legend = c("Mean Fst", "95% CI", "Threshold (0.09)"),
+       col = c("blue", NA, "red"),
+       fill = c(NA, rgb(0.2, 0.4, 0.8, 0.3), NA),
+       border = NA,
+       lty = c(1, NA, 2),
+       lwd = c(2, NA, 1.5),
+       bty = "n")
+text(x = 625, y = 0.07, expression(italic(t)%~~%625), cex = 1.5)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
 ## calculating heterozygosity per site
 
 aRanSyl_stats <- basic.stats(aRanSyl_genind_pops, diploid = TRUE)
@@ -664,7 +764,7 @@ class(het)
 
 ## calculating inbreeding coefficient (Fis)
 
-aRanSyl_Fis <- apply(aRanSyl_he$Fis, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
+aRanSyl_Fis <- apply(aRanSyl_stats$Fis, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
     round(digits = 3)
 
 ```
@@ -1621,7 +1721,7 @@ barplot(traits_tab1,
         ylim = c(0.00, 0.050), las = 1, xaxt = "n",
         col = c("black", "gray", "tan3", "gray"),
         xlab = "", border = FALSE, beside = TRUE,
-        ylab = "Mean value based on 1000 boostrap iterations")
+        ylab = "Mean value based on 1000 boostrap replicates")
 
 arrows(x0 = mp[1, 1], y0 = traits_tab$Qst_ci_ll[1],
        x1 = mp[1, 1], y1 = traits_tab$Qst_ci_ul[1],
@@ -1667,7 +1767,7 @@ par(new = TRUE)
 barplot(c(traits_tab$Qst[2], traits_tab$Fst[2]), space = FALSE,
         col = c("black", "gray"), ylim = c(0.00, 0.050), las = 1,
         xlab = "", border = FALSE,
-        ylab = "Mean value based on 1000 boostrap iterations")
+        ylab = "Mean value based on 1000 boostrap replicates")
 
 arrows(x0 = mp[1], y0 = traits_tab$Qst_ci_ll[2],
        x1 = mp[1], y1 = traits_tab$Qst_ci_ul[2],
