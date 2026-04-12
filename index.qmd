@@ -1,8 +1,10 @@
 ---
-title: "Yale-Myers Forest - Wood Frog Pop Gen Analyses"
+title: "Yale-Myers Forest: Wood Frog Pop Gen Analyses"
 author: "Dylan Padilla <br> (dylan.padilla@yale.edu)"
 institute: "Yale School of the Environment <br> Yale University <br> New Haven, CT 06511"
-format: html
+format:
+  html:
+    code-fold: true
 ---
 
 ![](imgs/yale-logo.png)
@@ -23,6 +25,8 @@ library(dartRverse)
 library(ecodist)
 library(GenomicRanges)
 library(hierfstat)
+library(kableExtra)
+library(knitr)
 library(LEA)
 library(leaflet)
 library(lfmm)
@@ -50,6 +54,8 @@ library(vcfR)
 library(xtable)
 
 ```
+
+Almost 25 years of research by the Skelly lab indicate that wood frog populations at Yale-Myers forest exhibit drastic variation in phenotypic traits.  Such variation could derive from a combination of local adaptation, parental effects, and plasticity. In contrast to such remarkable variation, our knowledge on the genetic variation among populations has lagged behind. This is one of the few studies that examines the population genetics of the wood frog at Yale-Myers, and provides a quantitative comparison between genetic differentiation and phenotypic differentiation to determine selection signatures.
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
@@ -80,7 +86,7 @@ meta_unique <- metadata[!duplicated(metadata$match.col), ]
 ## 'all.x = TRUE' ensures we keep all 205 rows from aRanSyl_rows
 #merged.tab <- merge(aRanSyl_rows, meta_unique, by = "match.col", all.x = TRUE)
 merged.tab <- merge(aRanSyl_rows, meta_unique, by = "match.col", all.x = FALSE)
-str(merged.tab)
+##str(merged.tab)
 ##merged.tab
 #write.csv(merged.tab, file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/YMF2018_metadata_Mar-20-26.csv", row.names = FALSE)
 
@@ -91,10 +97,12 @@ aRanSyl_genind_pruned <- indNames(aRanSyl_genind)[!indNames(aRanSyl_genind) %in%
 ##aRanSyl_genind_pruned
 
 aRanSyl_genind <- aRanSyl_genind[aRanSyl_genind_pruned, ]
-aRanSyl_genind
+##aRanSyl_genind
 
 
 ```
+
+Here is the data we have after quality control:
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
@@ -141,7 +149,7 @@ qmatrix2 <- qmatrix2[-c(2, 3), ]
 ##qmatrix
 
 aRanSyl_genind$pop <- as.factor(merged.tab$Pond)
-summary(aRanSyl_genind$pop)
+##summary(aRanSyl_genind$pop)
 ##aRanSyl_genind$pop
 
 ## some of the ponds contain less than 5 individuals.
@@ -152,7 +160,7 @@ tab$pop <- rownames(tab)
 tab.pruned <- tab[tab$ind >= 5, ]
 
 aRanSyl_genind_pops <- popsub(aRanSyl_genind, sublist = tab.pruned$pop)
-aRanSyl_genind_pops
+##aRanSyl_genind_pops
 
 ## the number of alleles per locus seems to range from 1 to 2
 ## we have to work with only biallelic loci, so there should always be 2
@@ -166,7 +174,7 @@ ind.rm2 <- data.frame(match.col = gsub(paste0("_S", ".*"), "",
                                        rownames(aRanSyl_genind_pops$tab)))
 merged.tab2 <- merge(merged.tab, ind.rm2, by = "match.col")
 ##cbind(merged.tab2$match.col, rownames(aRanSyl_genind_pops$tab))
-str(merged.tab2)
+##str(merged.tab2)
 
 ##save(aRanSyl_genind_pops,
 ##     file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_genind_pos_pops.Rdata")
@@ -195,14 +203,14 @@ tab.rm2.1 <- data.frame(ind = rownames(aRanSyl_genind_pops$tab),
 ## individuals from the qmatrix
 tab2 <- merge(tab.rm2, tab.rm1, by = "ind")
 tab2.1 <- merge(tab.rm2.1, tab.rm1.1, by = "ind")
-str(tab2)
-str(tab2.1)
+##str(tab2)
+##str(tab2.1)
 qmplot <- tab2
 qmplot2 <- tab2.1
 qmplot$pop <- as.character(qmplot$pop)
 qmplot2$pop <- as.character(qmplot2$pop)
-str(qmplot)
-str(qmplot2)
+##str(qmplot)
+##str(qmplot2)
 qmplot <- qmplot[order(qmplot$pop), ]
 qmplot2 <- qmplot2[order(qmplot2$pop), ]
 ##aggregate(qmplot$ind, list(qmplot$pop), length)
@@ -210,8 +218,9 @@ qmplot2 <- qmplot2[order(qmplot2$pop), ]
 
 
 ```
+First, we want to quantify whether there is population structure across ponds.  To do this, I ran a admixture analysis with the LEA package in R.
 
-
+According to the results, there is no population structure as suggested by the value that minimizes the cross-entropy ($k=1$; see figure below).
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
@@ -228,6 +237,7 @@ Arrows(x = 1, y = 0.490, x1 = 1, y1 = 0.495, col = "black",
 
 ```
 
+Also, I estimated pairwise $F_{st}$ values to determine the genetic differentiation among populations. The results suggest relatively low levels of genetic differentiation as shown below.
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
@@ -284,7 +294,7 @@ mtext("Pond", side = 1, line = 2)
 load("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_fst.RData")
 aRanSyl_fst_mat <- as.matrix(aRanSyl_fst)
 aRanSyl_fst_mat[aRanSyl_fst_mat < 0] <- 0
-aRanSyl_fst_mat[1:4, 1:4]
+##aRanSyl_fst_mat[1:4, 1:4]
 
 
 ## creating heatmap to plot genetic differentiation between
@@ -404,7 +414,7 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 ```
 
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, echo = FALSE, include = FALSE}
 
 
 ## this is what would happen if we select K = 2 in the strcuture analysis
@@ -571,6 +581,82 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 
 ```
 
+Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03), no population structure, and similar heterozygocity.  By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).
+
+Now, here are the things that we do not know and could address moving forward:
+
+- **How populations have remained genetically similar in spite of strong phenotypic variation?**
+
+Dr Skelly and I propose two potential scenarios that may explain this pattern.  First, the populations of Yale Myers might have *recently* diverged from an ancestor and it has not been long enough since the split for genetic drift, recombination, mutation, and selection to produce higher levels of genetic differentiation between populations.  Second, not only have the populations recently split, but also, there might be a considerably high gene flow among populations, which might hinder the power of selection on the populations.
+
+These ideas reflect two potential demographic scenarios that we can simulate based on the observed data (See figure below).
+
+![](imgs/demo-models.png)
+
+These are simple cases involving only two populations, but the same principles apply for a case involving 5 populations, which is the case of our study.  The two scenarios described above are represented in the cartoon by the model of "no gene flow" and the model of "recent gene flow".  I added a third model of "ancient split and gene flow" to test what would happen.
+
+I fitted the models with fastsimcoal2 as indicated below:
+
+### Model of recent split with no gene flow
+
+```{bash}
+
+#| echo: true
+#| output: true
+
+cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_RecentSplit/aRanSyl_RecentSplit.tpl"
+
+
+```
+
+
+
+### Model of recent split with gene flow
+
+```{bash}
+
+#| echo: true
+#| output: true
+
+cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_Combined/aRanSyl_Combined.tpl"
+
+```
+
+
+### Model of ancient split with gene flow
+
+```{bash}
+
+#| echo: true
+#| output: true
+
+cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_AncientFlow/aRanSyl_AncientFlow.tpl"
+
+```
+<br><br><br>
+
+--------------------------------------
+
+I ran fastsimcoal 50 times, selected the run with the best parameter estimates, and calculated the AIC of the model (see below).  The results suggested the a model of recent split with no gene flow was strongly supported by the data as shown below:
+
+
+### Model comparison beased on AIC
+
+```{r}
+
+aic.table <- read.table("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/AIC_model_table.txt", header = TRUE, sep = "")
+aic.table <- aic.table[-c(2, 4), ]
+rownames(aic.table) <- c("Ancient gene flow", "Recent gene flow", "No gene flow")
+aic.table$deltaL <- as.numeric(aic.table$deltaL)
+aic.table$AIC <- as.numeric(aic.table$AIC)
+kable(aic.table, digits = 2, format = "html") %>%
+  kable_styling(bootstrap_options = "striped")
+
+```
+
+## Here is a plot of the results
+
+
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ####### Plotting results of the demographic model ##########
@@ -649,6 +735,26 @@ text(x = 1:n_pops+0.1, y = -t_div * 0.08, labels = pop_labels,
 
 ```
 
+-------------------------------------------------
+
+Based on the results of the model, we can estimate how long it would take for the populations to reach some levels of genetic differentiation in the absence of selection and migration.  We can do that by estimating pairwise $F_{st}$ between DT and E8.  I picked those two populations because we want to control for population size (you can see that they are about the same size).
+
+I estimated the time for populations to reach $F_{st}>0.09$.  Although, this threshold might seem arbitrary, previous personal observations across the range of the species suggest that populations can be highly differentiated with $F_{st}=0.8$. However, a previous work on the population genetics of the wood frog in an altered forested wetland ecosystem found a max $F_{st}=0.05$ ([Skibbe *et. al.*, (2021)](https://www.herpconbio.org/Volume_16/Issue_1/Skibbe_etal_2021.pdf)), and they considered that value as a significant level of genetic differentiation.
+
+To estimate the time ($t$) required to reach those levels of genetic differentiation ($F_{st}=0.05$ and $F_{st}>0.09$), I simulated a $10~Mb$ region of the genome, with a mutation rate of $1.3\times10^{-9}$, and a baseline recombination rate of $1\times10^{-8}$. I ran the simulation in SLIM as indicated below:
+
+```{bash}
+
+#| echo: true
+#| output: true
+
+cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/scripts/slim/slim-sim.slim"
+
+```
+
+The results of the simulation indicate that for two populations of about the same size (DT and E8), the $t$ required for *genetic drift*, but not *selection*, to reach at least $F_{st}=0.05$ is about $250$ generations ago.  According to the most likely demographic scenario, the populations of Yale-Myers Forest split $62$ generations, which is not long enough for us to observe significant genetic differentiation.  Note that this is just what would happen between populations in the presence of genetic drift, mutation, and recombination.  This is not evaluating the role of selection.
+
+
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
@@ -707,8 +813,8 @@ summary_stats$upper <- summary_stats$mean_fst + (1.96 * summary_stats$se)
 
 ## sort by generation (CRITICAL for polygon() to work)
 summary_stats <- summary_stats[order(summary_stats$generation), ]
-head(summary_stats)
-tail(summary_stats)
+##head(summary_stats)
+##tail(summary_stats)
 
 
 ## initialize the plot area
@@ -746,6 +852,7 @@ text(x = 625, y = 0.07, expression(italic(t)%~~%625), cex = 1.5)
 
 ```
 
+I also looked at genetic diversity from a different perspective.  That is, I estimated the observed and expected heterozygosity across populations. The observed heterozygosity ($H_{o}$) is the actual proportion of heterozygous individuals in a population, calculated by dividing the number of heterozygotes by the total sample size. Expected heterozygosity ($H_{e}$ or genetic diversity) is the theoretical proportion of heterozygotes predicted by Hardy-Weinberg equilibrium, usually calculated as $1-\sum P_{i}^2$ (where $P_{i}$ is the frequency of the $i$-th allele).
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
@@ -760,7 +867,7 @@ he_aRanSyl <- apply(aRanSyl_stats$Hs, MARGIN = 2, FUN = mean, na.rm = TRUE) %>%
     round(digits = 2)
 
 het <- rbind(ho_aRanSyl, he_aRanSyl)
-class(het)
+
 
 ## calculating inbreeding coefficient (Fis)
 
@@ -768,6 +875,7 @@ aRanSyl_Fis <- apply(aRanSyl_stats$Fis, MARGIN = 2, FUN = mean, na.rm = TRUE) %>
     round(digits = 3)
 
 ```
+
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, include = FALSE}
@@ -784,12 +892,13 @@ mp2 <- barplot(aRanSyl_Fis, ylim = c(0, 0.2), las = 1,
 
 ```
 
+The results show that both the observed and expected heterozygosity slightly vary across populations but not drastically (see figure below).  That is to say, the genetic diversity among populations is similar.
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 
 barplot(het, ylim = c(0, 0.2), las = 1, beside = TRUE, border = FALSE,
-        ylab = "Heterozygocity", xaxt = "n", col = c("white", "white"))
+        ylab = "Heterozygosity", xaxt = "n", col = c("white", "white"))
 
 grid()
 par(new = TRUE)
@@ -805,7 +914,7 @@ legend("topleft", legend = c("observed", "expected"), pch = 15, bty = "n",
 ```
 
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE}
 
 
 barplot(aRanSyl_Fis, ylim = c(0, 0.10), las = 1,
@@ -824,12 +933,21 @@ mtext(side = 1, 'Pond', line = 2)
 
 ```
 
+The next follow up question I had was: Can the level of genetic differentiation observed above derive in selection?
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+To answer this question, I perform a test for selection based on the [OutFLANK](https://www.journals.uchicago.edu/doi/10.1086/682949) algorithm, which enables us to find $F_{st}$ outliers based on an inferred distribution of neutral $F_{st}$.
+
+According to the results, the ansewer is no.  There are no SNPs under selection (see figure below).
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, results='hide'}
 
 
 ## running OutFLANK using dartR wrapper script
-outflnk <- gl.outflank(aRanSyl_genind_pops, qthreshold = 0.05, plot = FALSE)
+outflnk <- gl.outflank(aRanSyl_genind_pops, qthreshold = 0.05, plot = FALSE, verbose = 0)
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## extracting OutFLANK results
 outflnk.df <- outflnk$outflank$results
@@ -839,7 +957,7 @@ rowsToRemove <- seq(1, nrow(outflnk.df), by = 2)
 outflnk.df <- outflnk.df[-rowsToRemove, ]
 
 ## printing number of outliers (TRUE)
-outflnk.df$OutlierFlag %>% summary
+##outflnk.df$OutlierFlag %>% summary
 
 ## extracting outlier IDs
 outlier_indexes <- which(outflnk.df$OutlierFlag == TRUE)
@@ -859,13 +977,19 @@ ggplot(data = outflnk.df) +
   geom_point(aes(x = He, y = FST, colour = OutlierFlag)) +
     scale_colour_manual(values = c("black","red"),
                         labels = c("Neutral SNP","Outlier SNP"))+
-  ggtitle("OutFLANK outlier test") + xlab(hetlab) + ylab(fstlab) +
+  xlab(hetlab) + ylab(fstlab) +
   theme(legend.title = element_blank(),
         plot.title = element_text(hjust = 0.5, size = 15,
                                   face = "bold"))
 
 
 ```
+
+
+Even though we detected no selection based on the genetic differentiation among populations, the environmental conditions may exert high selective pressures.  Thus, performing a Genotype-Environment association analysis might reveal different results.
+
+To do that, I compiled some data of environmental factors across ponds such as elevation, GSF, area, and distance to road (see figure below).
+
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
@@ -875,22 +999,22 @@ env <- read.csv("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/YMF
 ##str(env)
 names(env)[1] <- "Pond"
 
-str(merged.tab2)
-length(merged.tab2$match.col)
+##str(merged.tab2)
+##length(merged.tab2$match.col)
 merged.tab3 <- merge(merged.tab2, env[-c(8, 9)], by = "Pond")
-str(merged.tab3)
-length(merged.tab3$match.col)
+##str(merged.tab3)
+##length(merged.tab3$match.col)
 
 rm.pop <- merged.tab2[!merged.tab2$Pond %in% merged.tab3$Pond, ]
 rm.pop <- rm.pop$Pond[1]
 
 aRanSyl_genind_pops2 <- popsub(gid = aRanSyl_genind_pops,
                                exclude = rm.pop)
-aRanSyl_genind_pops2
+##aRanSyl_genind_pops2
 
 n <- names(which(nAll(aRanSyl_genind_pops2) == 2))
 aRanSyl_genind_pops2 <- aRanSyl_genind_pops2[loc = n]
-aRanSyl_genind_pops2
+##aRanSyl_genind_pops2
 
 
 ## we have to make sure that the order of the rows in
@@ -901,8 +1025,8 @@ merged.tab3$match.col <- as.factor(merged.tab3$match.col)
 ##str(merged.tab3)
 
 test <- merged.tab3[order(merged.tab3$match.col), ]
-head(data.frame(test$match.col, rownames(aRanSyl_genind_pops2$tab)))
-tail(data.frame(test$match.col, rownames(aRanSyl_genind_pops2$tab)))
+##head(data.frame(test$match.col, rownames(aRanSyl_genind_pops2$tab)))
+##tail(data.frame(test$match.col, rownames(aRanSyl_genind_pops2$tab)))
  
 merged.tab3 <- merged.tab3[order(merged.tab3$match.col), ]
 merged.tab3$samples_genind <- rownames(aRanSyl_genind_pops2$tab)
@@ -917,15 +1041,15 @@ x <- apply(aRanSyl_genind_pops2$tab, 2,
                                as.numeric(names(which.max(table(x))))))
 
 ##x <- tab(aRanSyl_genind_pops, NA.method = "mean")
-x[1:5, 1:5]
+##x[1:5, 1:5]
 
 snppca <- as.data.frame(x)
-snppca[1:10, 1:10]
+##snppca[1:10, 1:10]
 
 
 ## genotypes and environmental data are in the same order
 
-identical(rownames(snppca), merged.tab3$samples_genind)
+##identical(rownames(snppca), merged.tab3$samples_genind)
 
 ## adding more variables
 
@@ -934,7 +1058,7 @@ df <- read.table("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/sa
 df$sampleName <- as.factor(df$sampleName)
 names(df)[1] <- "match.col"
 df <- df[!duplicated(df$match.col), ]
-head(df)
+##head(df)
 
 ## adding data from of temperature from Gahm et. al., (2020)
 df$temp[df$Pond == "CPS"] <- 14.63434786
@@ -942,7 +1066,7 @@ df$temp[df$Pond == "DE"] <- 16.90162425
 df$temp[df$Pond == "LO"] <- 15.41743489
 df$temp[df$Pond == "MI"] <- 11.30101444
 
-tapply(df$temp, df$Pond, mean)
+##tapply(df$temp, df$Pond, mean)
 
 test <- merge(df[c(1, 9)], merged.tab3, by = "match.col")
  
@@ -974,7 +1098,7 @@ pv <- lfmm2.test(mod_lfmm,
 
 ## define candidate loci for GO analysis
 candidates <-  -log10(pv$pvalue) > 5
-(adaptive.snps <- colnames(snppca)[which(-log10(pv$pvalue) > 5)])
+adaptive.snps <- colnames(snppca)[which(-log10(pv$pvalue) > 5)]
 ##write.table(as.data.frame(adaptive.snps),
 ##            file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_adaptive_snps.txt",
 ##            col.names = FALSE, row.names = FALSE)
@@ -982,20 +1106,20 @@ candidates <-  -log10(pv$pvalue) > 5
 
 ## how many candidate loci?
 
-sum(candidates)/2
+##sum(candidates)/2
 
 ## we have to determine the position of the adaptive loci
 
-(adaptive.snps <- colnames(snppca)[which(-log10(pv$pvalue) > 5)])
-aRanSyl_genind_pops2
+adaptive.snps <- colnames(snppca)[which(-log10(pv$pvalue) > 5)]
+##aRanSyl_genind_pops2
 
 all.loc <- data.frame(ID = colnames(snppca),
                       pvalues = as.numeric(pv$pvalues))
-head(all.loc)
-tail(all.loc)
+##head(all.loc)
+##tail(all.loc)
 all.loc$ID <- gsub("\\..*", "", all.loc$ID)
-head(all.loc)
-dim(all.loc)
+##head(all.loc)
+##dim(all.loc)
 
 adaptive.snps <- gsub("\\..*", "", adaptive.snps)
 adaptive.snps <- unique(adaptive.snps)
@@ -1004,44 +1128,83 @@ adaptive.snps <- unique(adaptive.snps)
 vcf_data <- read.vcfR("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_copy_snps.vcf.gz",
                       verbose = FALSE)
 fix_data <- as.data.frame(vcf_data@fix)
-head(fix_data)
-tail(fix_data)
-class(fix_data)
+##head(fix_data)
+##tail(fix_data)
+##class(fix_data)
 
 ## positions
 
 loc1 <- fix_data[fix_data$ID == adaptive.snps[1], ]
-loc1
+##loc1
 loc2 <- fix_data[fix_data$ID == adaptive.snps[2], ]
-loc2
+##loc2
 loc3 <- fix_data[fix_data$ID == adaptive.snps[3], ]
-loc3
+##loc3
 loc4 <- fix_data[fix_data$ID == adaptive.snps[4], ]
-loc4
+##loc4
 
 
 ## map the positions onto gff file
 
 gff <- read.delim("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/aRanSyl-PopGen/data/aRansyl_genome.gff", header = FALSE, sep = "\t")
-str(gff)
+##str(gff)
 colnames(gff) <- c("CHROM", "Source", "Type", "Start", "End",
                    "Score", "Strand", "Phase", "Attributes")
-head(gff)
+##head(gff)
 
 gff.genes <- gff[gff$Type == "gene", ]
-str(gff.genes)
+##str(gff.genes)
 
-loc1$POS
-loc1$CHROM
-loc2$POS
-loc2$CHROM
-gff.genes[gff.genes$Start == 694576498, ] ## gene Rab28, snp POS falls
+##loc1$POS
+##loc1$CHROM
+##loc2$POS
+##loc2$CHROM
+##gff.genes[gff.genes$Start == 694576498, ] ## gene Rab28, snp POS falls
                                            ## between 694576498 and 694764569
-gff.genes[gff.genes$Start == 325882325, ] ## gene Col16a1_3, snp POS falls
+##gff.genes[gff.genes$Start == 325882325, ] ## gene Col16a1_3, snp POS falls
                                            ## between 325882325 and 326128092
 
 ```
 
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## now let's see how the env varies across ponds
+
+X.env.pop <- data.frame(scale(X.env), pop = aRanSyl_genind_pops2$pop,
+                        ind = as.character(merged.tab3$match.col))
+X.env.pop <- X.env.pop[order(X.env.pop$pop), ]
+##str(X.env.pop)
+mean.env <- aggregate(X.env.pop[1:6], list(pop = X.env.pop$pop),
+                      mean)
+##mean.env
+x <- 1:18
+
+plot(elevation ~ x, data = mean.env, type = "n", pch = 16,
+     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
+     ylim = c(-3, 4), xlab = "", axes = FALSE)
+grid()
+par(new = TRUE)
+plot(elevation ~ x, data = mean.env, type = "l", pch = 16,
+     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
+     ylim = c(-3, 4), xlab = "", lwd = 2)
+lines(wtGSF ~ x, data = mean.env, type = "l", pch = 16,
+     col = "skyblue", lwd = 2)
+lines(area_m2 ~ x, data = mean.env, type = "l", pch = 16,
+     col = "orange", lwd = 2)
+lines(Dis_to_road ~ x, data = mean.env, type = "l", pch = 16,
+     col = "red", lwd = 2)
+
+axis(side = 1, at = x, labels = mean.env$pop, cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2)
+legend("topleft", legend = c("elevation", "wtGSF", "area",
+                             "distance to road"),
+       lwd = 2,
+       col = c("gold", "skyblue", "orange", "red"),
+       bty = "n", cex = 0.8)
+
+```
+
+The genotype-environment association analysis revealed two potential alleles under selection in chromosome 1 (Rab28) and chromosome 2 (Col16a1), respectively (see figure below).
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
@@ -1052,12 +1215,12 @@ gff.genes[gff.genes$Start == 325882325, ] ## gene Col16a1_3, snp POS falls
 
 all.loc <- data.frame(ID = colnames(snppca),
                       pvalues = as.numeric(pv$pvalues))
-head(all.loc)
-tail(all.loc)
+##head(all.loc)
+##tail(all.loc)
 
 unique.all.loc <- data.frame()
 unique.all.loc <- all.loc[seq(1, nrow(all.loc), 2), ]
-head(unique.all.loc)
+##head(unique.all.loc)
 
 unique.all.loc$ID <- gsub("\\..*", "", unique.all.loc$ID)
 ##head(unique.all.loc)
@@ -1067,7 +1230,7 @@ fix_data2 <- fix_data2[order(fix_data2$CHROM), ]
 
 man <- fix_data2
 colnames(man) <- c("SNP", "CHR", "BP", "P")
-head(man)
+##head(man)
 man$CHR <- as.numeric(factor(man$CHR))
 man$BP <- as.numeric(factor(man$BP))
 man <- man[man$CHR %in% c(1:13), ]
@@ -1103,13 +1266,20 @@ box()
 
 ```
 
+
+If we further explore the frequency of these alleles across populations, we can see that their frequencies peak at population BS (see figure below), which is exactly where the environmental factors peak relative to the other pond condistions. That is so interesting!
+
+
+
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## let's see how the frequency of the alt alleles (Rab28 and col16a1)
 ## change across ponds
 
-allele_freqs <- as.data.frame(tab(aRanSyl_genind_pops2, freq = TRUE, NA.method = "mean"))
-allele_freqs[1:5, 1:5]
+allele_freqs <- as.data.frame(tab(aRanSyl_genind_pops2,
+                                  freq = TRUE,
+                                  NA.method = "mean"))
+##allele_freqs[1:5, 1:5]
 cols_to_remove <- grep("\\.0$", names(allele_freqs))
 ##print(cols_to_remove)
 alt_allele_freqs <- allele_freqs[ , -cols_to_remove]
@@ -1119,10 +1289,13 @@ alt_allele_freqs$pop <- aRanSyl_genind_pops2$pop
 alt_allele_freqs$ind <- rownames(alt_allele_freqs)
 ##str(alt_allele_freqs)
 
-allele_freqs_melted <- melt(alt_allele_freqs, id.vars = c("pop", "ind"), variable.name = "locus",
+allele_freqs_melted <- melt(alt_allele_freqs,
+                            id.vars = c("pop", "ind"),
+                            variable.name = "locus",
                             value.name = "freq")
 
-allele_freqs_melted$locus <- gsub("\\.1$", "", allele_freqs_melted$locus)
+allele_freqs_melted$locus <- gsub("\\.1$", "",
+                                  allele_freqs_melted$locus)
 ##head(allele_freqs_melted)
 ##str(allele_freqs_melted)
 
@@ -1134,30 +1307,38 @@ col16a1_freq <- allele_freqs_melted[allele_freqs_melted$locus == loc2.1$SNP, ]
 
 ## Rab28
 
-Rab28.mean.freq <- aggregate(cbind(mean = freq) ~ pop, data = Rab28_freq, mean)
-Rab28.sd.freq <- aggregate(cbind(sd = freq) ~ pop, data = Rab28_freq, sd)
+Rab28.mean.freq <- aggregate(cbind(mean = freq) ~ pop,
+                             data = Rab28_freq, mean)
+Rab28.sd.freq <- aggregate(cbind(sd = freq) ~ pop,
+                           data = Rab28_freq, sd)
 Rab28.mean.freq$sd <- Rab28.sd.freq$sd
 ##str(Rab28.mean.freq)
 
 ## col16a1
 
-col16a1.mean.freq <- aggregate(cbind(mean = freq) ~ pop, data = col16a1_freq, mean)
-col16a1.sd.freq <- aggregate(cbind(sd = freq) ~ pop, data = col16a1_freq, sd)
+col16a1.mean.freq <- aggregate(cbind(mean = freq) ~ pop,
+                               data = col16a1_freq, mean)
+col16a1.sd.freq <- aggregate(cbind(sd = freq) ~ pop,
+                             data = col16a1_freq, sd)
 col16a1.mean.freq$sd <- col16a1.sd.freq$sd
 ##str(col16a1.mean.freq)
 
 
 x <- 1:18
-plot(mean ~ x, data = Rab28.mean.freq, type = "n", xaxt = "n", las = 1,
+plot(mean ~ x, data = Rab28.mean.freq,
+     type = "n", xaxt = "n", las = 1,
      xlab = "", ylab = "", ylim = c(0, 0.5), axes = FALSE)
 
 grid()
 par(new = TRUE)
 
-plot(mean ~ x, data = Rab28.mean.freq, type = "l", xaxt = "n", las = 1,
-     xlab = "", ylab = "Mean allele frequency", ylim = c(0, 0.5),
+plot(mean ~ x, data = Rab28.mean.freq,
+     type = "l", xaxt = "n", las = 1,
+     xlab = "", ylab = "Mean allele frequency",
+     ylim = c(0, 0.5),
      pch = 16, bg = "black", lwd = 2)
-lines(mean ~ x, data = col16a1.mean.freq, col = "gray", pch = 16, lwd = 2)
+lines(mean ~ x, data = col16a1.mean.freq,
+      col = "gray", pch = 16, lwd = 2)
 ##lines(mean ~ x, data = mean.freq, col = "gold", lwd = 2)
 ##arrows(x0 = x, y0 = Rab28.mean.freq$mean - Rab28.mean.freq$sd, x1 = x,
 ##       y1 = Rab28.mean.freq$mean + Rab28.mean.freq$sd, code = 3, angle = 90,
@@ -1165,15 +1346,17 @@ lines(mean ~ x, data = col16a1.mean.freq, col = "gray", pch = 16, lwd = 2)
 ##arrows(x0 = x, y0 = col16a1.mean.freq$mean - col16a1.mean.freq$sd, x1 = x,
 ##       y1 = col16a1.mean.freq$mean + col16a1.mean.freq$sd, code = 3, angle = 90,
 ##       length = 0.1)
-axis(side = 1, at = x, labels = Rab28.mean.freq$pop, cex.axis = 0.5)
+axis(side = 1, at = x, labels = Rab28.mean.freq$pop,
+     cex.axis = 0.5)
 mtext(side = 1, 'Pond', line = 2)
-legend("topleft", legend = c("col16a1", "Rab28"), lty = 1, pch = 16, bty = "n",
+legend("topleft", legend = c("col16a1", "Rab28"),
+       lty = 1, pch = 16, bty = "n",
        col = c("gray", "black"), cex = 0.8)
 
 
 ```
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE}
 
 
 all.alleles <- aggregate(freq ~ locus + pop,
@@ -1211,47 +1394,7 @@ legend("topleft", legend = c("col16a1", "Rab28"), lty = 1, lwd = 2, bty = "n",
 ```
 
 
-
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
-
-## now let's see how the env varies across ponds
-
-X.env.pop <- data.frame(scale(X.env), pop = aRanSyl_genind_pops2$pop,
-                        ind = as.character(merged.tab3$match.col))
-X.env.pop <- X.env.pop[order(X.env.pop$pop), ]
-str(X.env.pop)
-mean.env <- aggregate(X.env.pop[1:6], list(pop = X.env.pop$pop),
-                      mean)
-##mean.env
-x <- 1:18
-
-plot(elevation ~ x, data = mean.env, type = "n", pch = 16,
-     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
-     ylim = c(-3, 4), xlab = "", axes = FALSE)
-grid()
-par(new = TRUE)
-plot(elevation ~ x, data = mean.env, type = "l", pch = 16,
-     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
-     ylim = c(-3, 4), xlab = "", lwd = 2)
-lines(wtGSF ~ x, data = mean.env, type = "l", pch = 16,
-     col = "skyblue", lwd = 2)
-lines(area_m2 ~ x, data = mean.env, type = "l", pch = 16,
-     col = "orange", lwd = 2)
-lines(Dis_to_road ~ x, data = mean.env, type = "l", pch = 16,
-     col = "red", lwd = 2)
-
-axis(side = 1, at = x, labels = mean.env$pop, cex.axis = 0.5)
-mtext(side = 1, 'Pond', line = 2)
-legend("topleft", legend = c("elevation", "wtGSF", "area",
-                             "distance to road"),
-       lwd = 2,
-       col = c("gold", "skyblue", "orange", "red"),
-       bty = "n", cex = 0.8)
-
-```
-
-
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE}
 
 ## drawing a map with coordinates of the populations
 
@@ -1290,9 +1433,37 @@ leaflet(ct_boundary) %>%
 
 ```
 
+Alright, so far, we have examined the evolution of wood frog populations from a genetic perspective.  *The big punchline of the analyses is that selection can occur even when the genetic differentiation among populations is relatively low*. The next follow up question I wanted to address is **Could the observed genetic variation among populations translate into directional/divergent selection in phenotypic traits?**
+
+This question is really hard to answer given how difficult it is to measure natural selection. Typically, natural selection is examined in laboratory conditions where one can control confounding factors that one would otherwise face. Even in the lab, it can be really hard to measure selection if organisms have long generation times, or if they are hard to grow in captivity. However, we can measure natural selection by comparing the differentiation of quantitative traits (**$Q_{st}$** for phenotypes) among populations to the differentiation of neutral molecular markers (**$F_{st}$**).
+
+By evaluating the proportion of additive genetic variance attributable to differences between populations ($\sigma_{GB}^2$), one can distinguish if phenotypic divergence is driven by directional selection ($Q_{st}>F_{st}$) or genetic drift ($Q_{st}\approx F_{st}$). Here is how we compute $Q_{st}$:
+
+<br>
+
+$Q_{st}=\frac{\sigma_{GB}^2}{\sigma_{GB}^2+2\sigma_{GW}^2}$
+
+$\sigma_{GB}^2=$ Additive genetic variance among populations.
+
+$\sigma_{GW}^2=$ Additive genetic variance within populations.
+
+<br>
+
+- $Q_{st}>F_{st}$ suggests directional selection (divergent selection), where different environmental pressures favor different traits, driving adaptation.
+
+- $Q_{st}\approx F_{st}$ suggests the trait is evolving neutrally (via genetic drift), with no specialized selection.
+
+- $Q_{st}<F_{st}$ suggests stabilizing selection or uniform selection, where the same trait value is favored across all environments, constraining divergence.
+
+<br>
+
+For this study, I focused on the evolution of embryonic development.  In 2021, tadpoles were collected among 6 popoulations/ponds at Yale-Mayers Forest: X7, E8, Pretty Beaver, Dead Turkey, Greenbriar, Blacksmith. Within each populations/ponds, at least 20 clutches were collected. The tadpoles were maintained in the lab at $10\degree C$ and individually photographed every day or two. From these photos, developmental stage (Gosner 1960) and size were estimated. Initial embryo size was estimated as the spherical volume of the mean diameter measured on the x and y axis in ImageJ (v 1.51k; Schneider et al. 2012).
+
+To estimate $Q_{st}$, I fitted an intercept-only linear mixed model and treated population and clutch/family (nested in population) as random effects to calculate their variance components as indicated below.
 
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE, echo = FALSE, include = FALSE}
 
 
 ## setting up the CSV file with columns: population, family, ctmax)
@@ -1355,13 +1526,13 @@ qst ## THE MODEL COULD NOT PARTIOTION THE VARIANCE
 ## population, family, EmbryoTime)
 
 devel <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/embryoDevelopment/embryoDevelopment_database.csv")
-str(devel)
+##str(devel)
 
 ## removing the rows based on whether there is any
 ## comment in the "Notes" column all comments in that
 ## column are related to the errors in the experiments
 devel_cleaned  <- devel[!grepl("[a-zA-Z]", devel$Notes), -9]
-str(devel_cleaned)
+##str(devel_cleaned)
 devel_cleaned$EmbryoTime <- as.numeric(devel_cleaned$EmbryoTime)
 
 
@@ -1369,24 +1540,59 @@ devel_cleaned$EmbryoTime <- as.numeric(devel_cleaned$EmbryoTime)
 ## "Clutch" represents a family 
 names(devel_cleaned)[2] <- "Population"
 names(devel_cleaned)[3] <- "Family"
-
+devel_cleaned$Family <- paste(devel_cleaned$Population,
+                              devel_cleaned$Family, sep = "")
 devel_cleaned$Family <- as.character(devel_cleaned$Family)
 devel_cleaned <- devel_cleaned[!devel_cleaned$Population == "GB", ]
 
+```
+
+<br>
+Here is the number of individuals within each population/pond:
+<br>
+
+```{r}
+
 tapply(devel_cleaned$EmbryoTime, devel_cleaned$Population, length)
+
+```
+
+<br>
+Here is the number of individuals within each clutch/family:
+<br>
+
+```{r}
+
 tapply(devel_cleaned$EmbryoTime, devel_cleaned$Family, length)
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## fitting the Mixed-Effects Model
 ## we treat Population and Family (nested in Population) as random effects
 ## to estimate their variance components
-devel.model <- lmer(EmbryoTime ~ (1 | Population) + (1 | Population:Family), 
-                      data = devel_cleaned)
 
-summary(devel.model)
+devel.model <- lmer(EmbryoTime ~ (1 | Population) + (1 | Population:Family), data = devel_cleaned)
+
+##summary(devel.model)
+
+```
+
+<br>
+Here is how I computed the variance components:
+<br>
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## extracting Variance Components
 devel_var.comp <- as.data.frame(VarCorr(devel.model))
 print(devel_var.comp)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## variables for Qst calculation:
 ## sigma2_between (Population variance)
@@ -1402,7 +1608,16 @@ va_est <- 2 * var_fam
 ## calculating Qst
 ## formula: Qst = var_pop / (var_pop + 2 * va_est)
 qst <- var_pop / (var_pop + 2 * va_est)
-qst
+##qst
+
+```
+
+
+<br>
+Here is the estimate of $F_{st}$ based on 1000 boostrap replicates:
+<br>
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## calculating overall Fst for the same populations
 
@@ -1416,8 +1631,8 @@ aRanSyl_genind_pops3 <- popsub(aRanSyl_genind_pops2,
 
 n <- names(which(nAll(aRanSyl_genind_pops3) == 2))
 aRanSyl_genind_pops3 <- aRanSyl_genind_pops3[loc = n]
-aRanSyl_genind_pops3
-aRanSyl_genind_pops3$pop
+##aRanSyl_genind_pops3
+##aRanSyl_genind_pops3$pop
 
 wc84_stats <- wc(aRanSyl_genind_pops3)
 wc84_stats$FST
@@ -1429,6 +1644,17 @@ fst_cis <- boot.ppfst(aRanSyl_genind_pops3,
 
 fst_ul <- mean(as.numeric(fst_cis$ul), na.rm = TRUE)
 fst_ll <- mean(as.numeric(fst_cis$ll), na.rm = TRUE)
+
+```
+
+
+<br>
+Here is how I computed $Q_{st}$ for embryo time based on 1000 boostrap replicates.  Embryo time measured roughly as the total number of days from day 0 to hatching day:
+<br>
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
 
 ## boostraping to get confidence interval for Qst
 
@@ -1457,11 +1683,11 @@ qst_boot_func <- function(data, indices) {
 boot_results <- boot(data = devel_cleaned, statistic = qst_boot_func, R = 1000)
 
 ## view the distribution
-print(boot_results)
+##print(boot_results)
 
 ## 95% Confidence Intervals
 boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
-boot_ci_results$bca
+##boot_ci_results$bca
 
 ## comparing Qst and Fst for the trait
 
@@ -1476,7 +1702,7 @@ ET.tab
 ```
 
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE, echo = FALSE, include = FALSE}
 
 
 ## setting up the genind object for convertion to an vcf file
@@ -1535,6 +1761,10 @@ pops_file <- cbind(indNames(aRanSyl_genind_pops4),
 
 ```
 
+<br><br>
+This is exactly the same procedure but this time for embryonic period:
+<br><br>
+
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
@@ -1548,8 +1778,8 @@ pops_file <- cbind(indNames(aRanSyl_genind_pops4),
 ##str(EP)
 
 EP <- read.csv("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/embryoDevelopment/EPFrame.csv")
-head(EP)
-str(EP)
+##head(EP)
+##str(EP)
 
 
 ##LP <- read.table("/Users/dpadil10/ASU\ Dropbox/Dylan\ Padilla/fineScaleWoodFrog/fieldwork2021/embryoDevelopment/metamorphosis.final.txt", header = TRUE, sep = " ")
@@ -1562,9 +1792,9 @@ str(EP)
 ##names(EP)[2:3] <- c("Population", "Family")
 names(EP)[6:7] <- c("Population", "Family")
 EP <- EP[!EP$Population == "GB", ]
-unique(EP$Population)
+##unique(EP$Population)
 
-str(EP)
+##str(EP)
 ##EP$Family <- as.character(EP$Family)
 
 ##names(LP)[2:3] <- c("Population", "Family")
@@ -1573,24 +1803,51 @@ str(EP)
 
 ##str(LP)
 
+```
+
+<br>
+Here is the number of individuals within each population/pond:
+<br>
+
+```{r}
+
 tapply(EP$EP, EP$Population, length)
+
+```
+
+<br>
+Here is the number of individuals within each family/clutch:
+<br>
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
 tapply(EP$EP, EP$Family, length)
 
+```
 
-##tapply(LP$LP, LP$Population, length)
-##tapply(LP$LP, LP$Family, length)
+<br>
+Variance components:
+<br>
 
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## fitting the Mixed-Effects Model
 ## we treat Population and Family (nested in Population) as random effects
 ## to estimate their variance components
 EP.model <- lmer(EPcorr ~ (1 | Population) + (1 | Population:Family), 
                       data = EP)
-summary(EP.model)
+##summary(EP.model)
 
 ## extracting Variance Components
 EP_var.comp <- as.data.frame(VarCorr(EP.model))
 print(EP_var.comp)
+
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## variables for Qst calculation:
 ## sigma2_between (Population variance)
@@ -1606,8 +1863,30 @@ va_est <- 2 * var_fam
 ## calculating Qst
 ## formula: Qst = var_pop / (var_pop + 2 * va_est)
 qst <- var_pop / (var_pop + 2 * va_est)
-qst
+#qst
+
+```
+
+
+<br>
+Here is the $F_{st}$:
+<br>
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## Fst
 wc84_stats$FST
+
+```
+
+<br>
+Again, computing $Q_{st}$ for embryo period based on 1000 boostrap replicates:
+<br>
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
 ## boostraping to get confidence interval for Qst
 
@@ -1636,11 +1915,11 @@ qst_boot_func <- function(data, indices) {
 boot_results <- boot(data = EP, statistic = qst_boot_func, R = 1000)
 
 ## view the distribution
-print(boot_results)
+##print(boot_results)
 
 ## 95% Confidence Intervals
 boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
-boot_ci_results$bca
+##boot_ci_results$bca
 
 ## comparing Qst and Fst for the trait
 
@@ -1655,7 +1934,7 @@ EP.tab
 ```
 
 
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, echo = FALSE, include = FALSE, eval = FALSE}
 
 
 ## setting up tables to visualize results
@@ -1750,7 +2029,7 @@ text(x = 5.3, y = 0.035, expression(italic("Q"[st]~EP)%~~%italic("F"[st])),
 
 ```
 
-```{r echo FALSE, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, include = FALSE}
+```{r echo FALSE, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, include = FALSE, eval = FALSE}
 
 traits_tab <- rbind(ET.tab, EP.tab)
 traits_tab
