@@ -187,7 +187,7 @@ window.Quarto = {
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xtable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Almost 25 years of research by the Skelly lab indicate that wood frog populations at Yale-Myers forest exhibit drastic variation in phenotypic traits. Such variation could derive from a combination of local adaptation, parental effects, and plasticity. In contrast to such remarkable variation, our knowledge on the genetic variation among populations has lagged behind. This is one of the few studies that examines the population genetics of the wood frog at Yale-Myers, and provides a quantitative comparison between genetic differentiation and phenotypic differentiation to determine selection signatures.</p>
+<p>Almost 25 years of research by the Skelly lab indicate that wood frog populations at Yale-Myers forest exhibit drastic variation in phenotypic traits. Such variation could derive from a combination of local adaptation, parental effects, and plasticity. In contrast to such remarkable variation, our knowledge on the genetic variation among populations has lagged behind. This is one of the few studies that examines the population genetics of the wood frog at Yale-Myers, and provides a quantitative comparison between genetic differentiation and phenotypic differentiation to uncover selection signatures.</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -573,7 +573,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03), no population structure, and similar heterozygosity. By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).</p>
+<p>Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03) and no population structure. By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).</p>
 <p>Now, here are the things that we do not know and could address moving forward:</p>
 <ul>
 <li><strong>How populations have remained genetically similar in spite of strong phenotypic variation?</strong></li>
@@ -581,7 +581,7 @@ window.Quarto = {
 <p>Dr Skelly and I propose two potential scenarios that may explain this pattern. First, the populations of Yale Myers might have <em>recently</em> diverged from an ancestor and it has not been long enough since the split for genetic drift, recombination, mutation, and selection to produce higher levels of genetic differentiation between populations. Second, not only have the populations recently split, but also, there might be a considerably high gene flow among populations, which might hinder the power of selection.</p>
 <p>These ideas reflect two potential demographic scenarios that we can simulate based on the observed data (See figure below).</p>
 <p><img src="imgs/demo-models.png" class="img-fluid"></p>
-<p>These are simple cases involving only two populations, but the same principles apply for a case involving 5 populations, which is the case of our study. The two scenarios described above are represented in the cartoon by the model of “no gene flow” and the model of “recent gene flow”. I added a third model of “ancient split and gene flow” to test what would happen.</p>
+<p>The figure above shows simple cases involving only two populations, but the same principles apply for a case involving 5 populations, which is the case of our study. The two scenarios I would like to assess are represented in the cartoon by the model of “no gene flow” and the model of “recent gene flow”. I added a third model of “ancient split and gene flow” to test what would happen.</p>
 <p>I fitted the models with fastsimcoal2 as indicated below:</p>
 <section id="model-of-recent-split-with-no-gene-flow" class="level3">
 <h3 class="anchored" data-anchor-id="model-of-recent-split-with-no-gene-flow">Model of recent split with no gene flow</h3>
@@ -756,7 +756,7 @@ FREQ 1 0 1.3e-9</code></pre>
 </div>
 <p><br><br><br></p>
 <hr>
-<p>I ran fastsimcoal 50 times, selected the run with the best parameter estimates, and calculated the AIC of the model (see below). The results suggested the a model of recent split with no gene flow was strongly supported by the data as shown below:</p>
+<p>I ran fastsimcoal 50 times, selected the run with the best parameter estimates, and calculated the AIC of the model (see below). The results suggested that a model of recent split with no gene flow was strongly supported by the data (see table below).</p>
 </section>
 <section id="model-comparison-beased-on-aic" class="level3">
 <h3 class="anchored" data-anchor-id="model-comparison-beased-on-aic">Model comparison beased on AIC</h3>
@@ -892,7 +892,7 @@ FREQ 1 0 1.3e-9</code></pre>
 <hr>
 <p>Based on the results of the model, we can estimate how long it would take for the populations to reach some levels of genetic differentiation in the absence of selection and migration. We can do that by estimating pairwise <span class="math inline">\(F_{st}\)</span> between DT and E8. I picked those two populations because we want to control for population size (you can see that they are about the same size).</p>
 <p>I estimated the time for populations to reach <span class="math inline">\(F_{st}&gt;0.09\)</span>. Although, this threshold might seem arbitrary, previous personal observations across the range of the species suggest that populations can be highly differentiated with <span class="math inline">\(F_{st}=0.8\)</span>. However, a previous work on the population genetics of the wood frog in an altered forested wetland ecosystem found a max <span class="math inline">\(F_{st}=0.05\)</span> (<a href="https://www.herpconbio.org/Volume_16/Issue_1/Skibbe_etal_2021.pdf">Skibbe <em>et. al.</em>, (2021)</a>), and they considered that value as a significant level of genetic differentiation.</p>
-<p>To estimate the time (<span class="math inline">\(t\)</span>) required to reach those levels of genetic differentiation (<span class="math inline">\(F_{st}=0.05\)</span> and <span class="math inline">\(F_{st}&gt;0.09\)</span>), I simulated a <span class="math inline">\(10~Mb\)</span> region of the genome, with a mutation rate of <span class="math inline">\(1.3\times10^{-9}\)</span>, and a baseline recombination rate of <span class="math inline">\(1\times10^{-8}\)</span>. I ran the simulation in SLIM as indicated below:</p>
+<p>To estimate the time (<span class="math inline">\(t\)</span>) required to reach those levels of genetic differentiation (<span class="math inline">\(F_{st}=0.05\)</span> and <span class="math inline">\(F_{st}&gt;0.09\)</span>), I simulated a <span class="math inline">\(10~Mb\)</span> region of the genome, with a mutation rate of <span class="math inline">\(1.3\times10^{-9}\)</span>, and a baseline recombination rate of <span class="math inline">\(1\times10^{-8}\)</span>. I ran the simulation in SLiM as indicated below:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -951,7 +951,7 @@ FREQ 1 0 1.3e-9</code></pre>
 50000 late() { sim.simulationFinished(); }</code></pre>
 </div>
 </div>
-<p>The results of the simulation indicate that for two populations of about the same size (DT and E8), the <span class="math inline">\(t\)</span> required for <em>genetic drift</em>, but not <em>selection</em>, to reach at least <span class="math inline">\(F_{st}=0.05\)</span> is about <span class="math inline">\(250\)</span> generations ago. According to the most likely demographic scenario, the populations of Yale-Myers Forest split <span class="math inline">\(62\)</span> generations, which is not long enough for us to observe significant genetic differentiation. Note that this is just what would happen between populations in the presence of genetic drift, mutation, and recombination. This is not evaluating the role of selection.</p>
+<p>The results of the simulation indicate that for two populations of about the same size (DT and E8), the <span class="math inline">\(t\)</span> required for <em>genetic drift</em>, but not <em>selection</em> nor <em>migration</em>, to reach at least <span class="math inline">\(F_{st}=0.05\)</span> is about <span class="math inline">\(250\)</span> generations. According to the most likely demographic scenario, the populations of Yale-Myers Forest split <span class="math inline">\(62\)</span> generations ago, which is not long enough for us to observe significant genetic differentiation. Note that this is just what would happen between populations in the presence of genetic drift, mutation, and recombination. This is not evaluating the role of selection and migration.</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1462,7 +1462,7 @@ FREQ 1 0 1.3e-9</code></pre>
 </div>
 </div>
 </div>
-<p>If we further explore the frequency of these alleles across populations, we can see that their frequencies peak at population BS (see figure below), which is exactly where the environmental factors peak relative to the other pond condistions. That is so interesting!</p>
+<p>If we further explore the frequency of these alleles across populations, we can see that their frequencies peak at population BS (see figure below), which is exactly where the environmental factors peak relative to the other ponds. That is so interesting!</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1627,7 +1627,7 @@ FREQ 1 0 1.3e-9</code></pre>
 <span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Alright, so far, we have examined the evolution of wood frog populations from a genetic perspective. <em>The big punchline of the analyses is that selection can occur even when the genetic differentiation among populations is relatively low</em>. The next follow up question I wanted to address is <strong>Could the observed genetic variation among populations translate into directional/divergent selection in phenotypic traits?</strong></p>
+<p>Alright, so far, we have examined the evolution of wood frog populations from a genetic perspective. <em>The big punchline of the analyses is that selection can occur even when the genetic differentiation among populations is relatively low, especially when the environment exerts high selective pressures</em>. The next follow up question I wanted to address is <strong>Could the observed genetic variation among populations translate into directional/divergent selection in phenotypic traits?</strong></p>
 <p>This question is really hard to answer given how difficult it is to measure natural selection. Typically, natural selection is examined in laboratory conditions where one can control confounding factors that one would otherwise face. Even in the lab, it can be really hard to measure selection if organisms have long generation times, or if they are hard to grow in captivity. However, we can measure natural selection by comparing the differentiation of quantitative traits (<strong><span class="math inline">\(Q_{st}\)</span></strong> for phenotypes) among populations to the differentiation of neutral molecular markers (<strong><span class="math inline">\(F_{st}\)</span></strong>).</p>
 <p>By evaluating the proportion of additive genetic variance attributable to differences between populations (<span class="math inline">\(\sigma_{GB}^2\)</span>), one can distinguish if phenotypic divergence is driven by directional selection (<span class="math inline">\(Q_{st}&gt;F_{st}\)</span>) or genetic drift (<span class="math inline">\(Q_{st}\approx F_{st}\)</span>). Here is how we compute <span class="math inline">\(Q_{st}\)</span>:</p>
 <p><br></p>
@@ -1836,7 +1836,7 @@ X710 X711 X712 X713 X714 X715 X716 X717 X719  X72 X720  X73  X74  X75  X76  X77
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait         Qst Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006033284         0 0.03054703 0.01541326 0.01268496 0.01870487</code></pre>
+1    ET 0.006033284         0 0.02875355 0.01541326 0.01263855 0.01865496</code></pre>
 </div>
 </div>
 <p><br><br> This is exactly the same procedure but this time for embryonic period: <br><br></p>
@@ -2012,7 +2012,7 @@ X718 X719  X72 X720  X73  X74  X75  X76  X77  X78  X79
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait        Qst   Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    EP 0.02227696 0.009387204 0.04323864 0.01541326 0.01268496 0.01870487</code></pre>
+1    EP 0.02227696 0.009428993 0.04447042 0.01541326 0.01263855 0.01865496</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
