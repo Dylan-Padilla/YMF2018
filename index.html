@@ -365,7 +365,7 @@ window.Quarto = {
 <span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="do">##aggregate(qmplot$ind, list(qmplot$pop), length)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>First, we want to quantify whether there is population structure across ponds. To do this, I ran a admixture analysis with the LEA package in R.</p>
+<p>First, we want to quantify whether there is population structure across ponds. To do this, I ran an admixture analysis with the LEA package in R.</p>
 <p>According to the results, there is no population structure as suggested by the value that minimizes the cross-entropy (<span class="math inline">\(k=1\)</span>; see figure below).</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
@@ -573,12 +573,12 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03), no population structure, and similar heterozygocity. By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).</p>
+<p>Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03), no population structure, and similar heterozygosity. By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).</p>
 <p>Now, here are the things that we do not know and could address moving forward:</p>
 <ul>
 <li><strong>How populations have remained genetically similar in spite of strong phenotypic variation?</strong></li>
 </ul>
-<p>Dr Skelly and I propose two potential scenarios that may explain this pattern. First, the populations of Yale Myers might have <em>recently</em> diverged from an ancestor and it has not been long enough since the split for genetic drift, recombination, mutation, and selection to produce higher levels of genetic differentiation between populations. Second, not only have the populations recently split, but also, there might be a considerably high gene flow among populations, which might hinder the power of selection on the populations.</p>
+<p>Dr Skelly and I propose two potential scenarios that may explain this pattern. First, the populations of Yale Myers might have <em>recently</em> diverged from an ancestor and it has not been long enough since the split for genetic drift, recombination, mutation, and selection to produce higher levels of genetic differentiation between populations. Second, not only have the populations recently split, but also, there might be a considerably high gene flow among populations, which might hinder the power of selection.</p>
 <p>These ideas reflect two potential demographic scenarios that we can simulate based on the observed data (See figure below).</p>
 <p><img src="imgs/demo-models.png" class="img-fluid"></p>
 <p>These are simple cases involving only two populations, but the same principles apply for a case involving 5 populations, which is the case of our study. The two scenarios described above are represented in the cartoon by the model of “no gene flow” and the model of “recent gene flow”. I added a third model of “ancient split and gene flow” to test what would happen.</p>
@@ -1836,7 +1836,7 @@ X710 X711 X712 X713 X714 X715 X716 X717 X719  X72 X720  X73  X74  X75  X76  X77
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait         Qst Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006033284         0 0.03084652 0.01541326 0.01256131 0.01870183</code></pre>
+1    ET 0.006033284         0 0.03054703 0.01541326 0.01268496 0.01870487</code></pre>
 </div>
 </div>
 <p><br><br> This is exactly the same procedure but this time for embryonic period: <br><br></p>
@@ -2011,8 +2011,8 @@ X718 X719  X72 X720  X73  X74  X75  X76  X77  X78  X79
 <span id="cb56-42"><a href="#cb56-42" aria-hidden="true" tabindex="-1"></a>EP.tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  Trait        Qst  Qst_ci_ll Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    EP 0.02227696 0.01008165 0.0438133 0.01541326 0.01256131 0.01870183</code></pre>
+<pre><code>  Trait        Qst   Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
+1    EP 0.02227696 0.009387204 0.04323864 0.01541326 0.01268496 0.01870487</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">

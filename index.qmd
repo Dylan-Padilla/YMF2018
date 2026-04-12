@@ -218,7 +218,7 @@ qmplot2 <- qmplot2[order(qmplot2$pop), ]
 
 
 ```
-First, we want to quantify whether there is population structure across ponds.  To do this, I ran a admixture analysis with the LEA package in R.
+First, we want to quantify whether there is population structure across ponds.  To do this, I ran an admixture analysis with the LEA package in R.
 
 According to the results, there is no population structure as suggested by the value that minimizes the cross-entropy ($k=1$; see figure below).
 
@@ -581,13 +581,13 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 
 ```
 
-Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03), no population structure, and similar heterozygocity.  By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).
+Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03), no population structure, and similar heterozygosity.  By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).
 
 Now, here are the things that we do not know and could address moving forward:
 
 - **How populations have remained genetically similar in spite of strong phenotypic variation?**
 
-Dr Skelly and I propose two potential scenarios that may explain this pattern.  First, the populations of Yale Myers might have *recently* diverged from an ancestor and it has not been long enough since the split for genetic drift, recombination, mutation, and selection to produce higher levels of genetic differentiation between populations.  Second, not only have the populations recently split, but also, there might be a considerably high gene flow among populations, which might hinder the power of selection on the populations.
+Dr Skelly and I propose two potential scenarios that may explain this pattern.  First, the populations of Yale Myers might have *recently* diverged from an ancestor and it has not been long enough since the split for genetic drift, recombination, mutation, and selection to produce higher levels of genetic differentiation between populations.  Second, not only have the populations recently split, but also, there might be a considerably high gene flow among populations, which might hinder the power of selection.
 
 These ideas reflect two potential demographic scenarios that we can simulate based on the observed data (See figure below).
 
@@ -883,7 +883,7 @@ aRanSyl_Fis <- apply(aRanSyl_stats$Fis, MARGIN = 2, FUN = mean, na.rm = TRUE) %>
 ## plotting
 
 mp <- barplot(het, ylim = c(0, 0.2), las = 1, beside = TRUE, border = FALSE,
-              ylab = "Heterozygocity", xaxt = "n", col = c("white", "white"))
+              ylab = "Heterozygosity", xaxt = "n", col = c("white", "white"))
 
 
 mp2 <- barplot(aRanSyl_Fis, ylim = c(0, 0.2), las = 1,
