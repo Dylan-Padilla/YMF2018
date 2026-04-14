@@ -2063,3 +2063,223 @@ text(x = 1, y = 0.035, expression(italic("Q"[st])%~~%italic("F"[st])),
      cex = 1.5)
 
 ```
+
+
+**I kept digging through folders on the lab server and finally found Andis' data from the Evolution 2021 paper.  His data seems to tell us a different story.  There might be some things we will have to discuss.**
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## setting up the CSV file with columns:
+## population, family, EmbryoTime)
+
+devel2 <- read.csv("/Volumes/SkellyLab/Andis/aa2258_backup_mcleary/HPC_backup/Rwork/EPestimates.csv", row.names = 1)
+##str(devel2)
+
+
+## in the table, a "Pond" represents a population and a
+## "Clutch" represents a family 
+names(devel2)[3] <- "Population"
+names(devel2)[4] <- "Family"
+
+devel2$Family <- paste(devel2$Population,
+                              devel2$Family, sep = "")
+devel2$Family <- as.character(devel2$Family)
+devel2 <- devel2[!devel2$Population == "GB", ]
+devel2 <- devel2[devel2$Year == 2018, ]
+devel2$logEP <- log(devel2$EP)
+
+```
+
+<br>
+Here is the number of individuals within each population/pond:
+<br>
+
+```{r}
+
+tapply(devel2$logEP, devel2$Population, length)
+
+```
+
+<br>
+Here is the number of individuals within each clutch/family:
+<br>
+
+```{r}
+
+tapply(devel2$EP, devel2$Family, length)
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## fitting the Mixed-Effects Model
+## we treat Population and Family (nested in Population) as random effects
+## to estimate their variance components
+
+devel.model <- lmer(logEP ~ Inc + (1 | Population) + (1 | Population:Family), data = devel2)
+
+##summary(devel.model)
+
+```
+
+<br>
+Here is how I computed the variance components:
+<br>
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## extracting Variance Components
+devel_var.comp <- as.data.frame(VarCorr(devel.model))
+print(devel_var.comp)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## variables for Qst calculation:
+## sigma2_between (Population variance)
+var_pop <- devel_var.comp$vcov[devel_var.comp$grp == "Population"]
+
+## sigma2_within (Family variance - usually multiplied
+## to estimate additive genetic variance Va)
+## in a half-sib design, Va = 4 * var_family.
+## In full-sib, it's roughly 2 * var_family.
+var_fam <- devel_var.comp$vcov[devel_var.comp$grp == "Population:Family"]
+va_est <- 2 * var_fam 
+
+## calculating Qst
+## formula: Qst = var_pop / (var_pop + 2 * va_est)
+qst <- var_pop / (var_pop + 2 * va_est)
+##qst
+
+```
+
+
+<br>
+Here is the estimate of $F_{st}$ based on 1000 boostrap replicates:
+<br>
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## calculating overall Fst for the same populations
+
+pops <- unique(devel2$Population)
+
+aRanSyl_genind_pops5 <- popsub(aRanSyl_genind_pops2,
+                               sublist = devel2$Population)
+
+## the number of alleles per locus seems to range from 1 to 2
+## we have to work with only biallelic loci, so there should always be 2
+
+n <- names(which(nAll(aRanSyl_genind_pops5) == 2))
+aRanSyl_genind_pops5 <- aRanSyl_genind_pops5[loc = n]
+##aRanSyl_genind_pops3
+##aRanSyl_genind_pops3$pop
+
+wc84_stats <- wc(aRanSyl_genind_pops5)
+wc84_stats$FST
+
+## calculating Fst confidence intervals
+
+fst_cis <- boot.ppfst(aRanSyl_genind_pops5,
+                      nboot = 1000, quant = c(0.025, 0.975))
+
+fst_ul <- mean(as.numeric(fst_cis$ul), na.rm = TRUE)
+fst_ll <- mean(as.numeric(fst_cis$ll), na.rm = TRUE)
+
+```
+
+
+<br>
+Here is how I computed $Q_{st}$ for embryo time based on 1000 boostrap replicates.  Embryo time measured roughly as the total number of days from day 0 to hatching day:
+<br>
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+## boostraping to get confidence interval for Qst
+
+## function to calculate Qst for each bootstrap replicate
+qst_boot_func <- function(data, indices) {
+  ## resample the data
+  d <- data[indices, ]
+  
+  ## fit the model (using blmer to avoid singular fits)
+  devel.model <- lmer(logEP ~ Inc + (1 | Population) + (1 | Population:Family), data = d)
+  
+  ## extract variances
+  devel_var.comp <- as.data.frame(VarCorr(devel.model))
+  var_pop <- devel_var.comp$vcov[devel_var.comp$grp == "Population"]
+  var_fam <- devel_var.comp$vcov[devel_var.comp$grp == "Population:Family"]
+  
+  ## calculate Va (Additive Genetic Variance) and Qst
+  va <- 2 * var_fam
+  qst_val <- var_pop / (var_pop + 2 * va)
+  
+  return(qst_val)
+}
+
+## running 1000 bootstrap iterations
+##set.seed(123) # for reproducibility
+boot_results <- boot(data = devel2, statistic = qst_boot_func, R = 1000)
+
+## view the distribution
+##print(boot_results)
+
+## 95% Confidence Intervals
+boot_ci_results <- boot.ci(boot_results, type = c("perc", "bca"))
+##boot_ci_results$bca
+
+## comparing Qst and Fst for the trait
+
+logEP.tab <- data.frame(Trait = "logEP", Qst = qst,
+                     Qst_ci_ll = boot_ci_results$bca[4],
+                     Qst_ci_ul = boot_ci_results$bca[5],
+                     Fst = wc84_stats$FST,
+                     Fst_ci_ll = fst_ll,
+                     Fst_ci_ul = fst_ul)
+logEP.tab
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+
+traits_tab <- matrix(c(logEP.tab[2], logEP.tab[3], logEP.tab[4],
+                       logEP.tab[5], logEP.tab[6], logEP.tab[7]), ncol = 3, nrow = 2,
+                     byrow = TRUE)
+
+## plotting Qst and Fst for different traits
+
+mp <- barplot(as.numeric(traits_tab[ , 1]), space = FALSE,
+              col = c("white", "white"), ylim = c(0.00, 0.5),
+              border = FALSE, las = 1, axes = FALSE)
+
+grid()
+par(new = TRUE)
+
+barplot(as.numeric(traits_tab[ , 1]), space = FALSE,
+        col = c("black", "gray"), ylim = c(0.00, 0.5), las = 1,
+        xlab = "", border = FALSE,
+        ylab = "Mean value based on 1000 boostrap replicates")
+
+arrows(x0 = mp[1, 1], y0 = logEP.tab$Qst_ci_ll,
+       x1 = mp[1, 1], y1 = logEP.tab$Qst_ci_ul,
+       code = 3, angle = 90, length = 0.1, col = "red")
+arrows(x0 = mp[2, 1], y0 = logEP.tab$Fst_ci_ll, x1 = mp[2, 1],
+       y1 = logEP.tab$Fst_ci_ul, code = 3, angle = 90,
+       length = 0.1, col = "red")
+box()
+
+axis(side = 1, at = mp,
+     labels = c(expression(italic("Q"[st])~EP), expression(italic("F"[st]))),
+     cex = 1)
+text(x = 1, y = 0.4, expression(italic("Q"[st])>italic("F"[st])),
+     cex = 1.5)
+
+```

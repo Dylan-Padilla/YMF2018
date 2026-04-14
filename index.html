@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.52">
+<meta name="generator" content="quarto-1.5.47">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -1726,9 +1726,9 @@ X710 X711 X712 X713 X714 X715 X716 X717 X719  X72 X720  X73  X74  X75  X76  X77
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                grp        var1 var2        vcov      sdcor
-1 Population:Family (Intercept) &lt;NA&gt; 0.179421938 0.42358227
-2        Population (Intercept) &lt;NA&gt; 0.004356297 0.06600225
-3          Residual        &lt;NA&gt; &lt;NA&gt; 0.337490177 0.58093905</code></pre>
+1 Population:Family (Intercept) &lt;NA&gt; 0.179421443 0.42358168
+2        Population (Intercept) &lt;NA&gt; 0.004355787 0.06599838
+3          Residual        &lt;NA&gt; &lt;NA&gt; 0.337490403 0.58093924</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -1836,7 +1836,7 @@ X710 X711 X712 X713 X714 X715 X716 X717 X719  X72 X720  X73  X74  X75  X76  X77
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait         Qst Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006033284         0 0.02875355 0.01541326 0.01263855 0.01865496</code></pre>
+1    ET 0.006032598         0 0.03060884 0.01541326 0.01267615 0.01871395</code></pre>
 </div>
 </div>
 <p><br><br> This is exactly the same procedure but this time for embryonic period: <br><br></p>
@@ -2012,7 +2012,7 @@ X718 X719  X72 X720  X73  X74  X75  X76  X77  X78  X79
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait        Qst   Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    EP 0.02227696 0.009428993 0.04447042 0.01541326 0.01263855 0.01865496</code></pre>
+1    EP 0.02227696 0.009973926 0.04166786 0.01541326 0.01267615 0.01871395</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -2072,6 +2072,236 @@ X718 X719  X72 X720  X73  X74  X75  X76  X77  X78  X79
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="index_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>I kept digging through folders on the lab server and finally found Andis’ data from the Evolution 2021 paper. His data seems to tell us a different story. There might be some things we will have to discuss.</strong></p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="do">## setting up the CSV file with columns:</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="do">## population, family, EmbryoTime)</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>devel2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"/Volumes/SkellyLab/Andis/aa2258_backup_mcleary/HPC_backup/Rwork/EPestimates.csv"</span>, <span class="at">row.names =</span> <span class="dv">1</span>)</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="do">##str(devel2)</span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a><span class="do">## in the table, a "Pond" represents a population and a</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a><span class="do">## "Clutch" represents a family </span></span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(devel2)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"Population"</span></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(devel2)[<span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="st">"Family"</span></span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a>devel2<span class="sc">$</span>Family <span class="ot">&lt;-</span> <span class="fu">paste</span>(devel2<span class="sc">$</span>Population,</span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a>                              devel2<span class="sc">$</span>Family, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a>devel2<span class="sc">$</span>Family <span class="ot">&lt;-</span> <span class="fu">as.character</span>(devel2<span class="sc">$</span>Family)</span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a>devel2 <span class="ot">&lt;-</span> devel2[<span class="sc">!</span>devel2<span class="sc">$</span>Population <span class="sc">==</span> <span class="st">"GB"</span>, ]</span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a>devel2 <span class="ot">&lt;-</span> devel2[devel2<span class="sc">$</span>Year <span class="sc">==</span> <span class="dv">2018</span>, ]</span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a>devel2<span class="sc">$</span>logEP <span class="ot">&lt;-</span> <span class="fu">log</span>(devel2<span class="sc">$</span>EP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><br> Here is the number of individuals within each population/pond: <br></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(devel2<span class="sc">$</span>logEP, devel2<span class="sc">$</span>Population, length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>BO BS CP DE DT E1 KE LA MI SH WF WP 
+54 71 70 58 63 64 65 23 70 70 66 69 </code></pre>
+</div>
+</div>
+<p><br> Here is the number of individuals within each clutch/family: <br></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(devel2<span class="sc">$</span>EP, devel2<span class="sc">$</span>Family, length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>BO1 BO2 BO3 BO4 BO5 BO6 BS1 BS2 BS3 BS4 BS5 BS6 CP1 CP2 CP3 CP4 CP5 CP6 DE1 DE2 
+ 12   2  10  10  11   9  11  12  12  12  12  12  11  12  12  11  12  12  12  11 
+DE3 DE4 DE5 DE6 DT1 DT2 DT3 DT4 DT5 DT6 E11 E12 E13 E14 E15 E16 KE1 KE2 KE3 KE4 
+  6   6  11  12  11  12  12  10   7  11  12  11  10  12   8  11   9  11  12  12 
+KE5 KE6 LA1 LA2 MI1 MI2 MI3 MI4 MI5 MI6 SH1 SH2 SH3 SH4 SH5 SH6 WF1 WF2 WF3 WF4 
+ 10  11  11  12  12  12  11  12  12  11  12  12  12  12  11  11  12  11  12   9 
+WF5 WF6 WP1 WP2 WP3 WP4 WP5 WP6 
+ 11  11  12  11  12  12  11  11 </code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="do">## fitting the Mixed-Effects Model</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="do">## we treat Population and Family (nested in Population) as random effects</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="do">## to estimate their variance components</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>devel.model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(logEP <span class="sc">~</span> Inc <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Population) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Population<span class="sc">:</span>Family), <span class="at">data =</span> devel2)</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="do">##summary(devel.model)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><br> Here is how I computed the variance components: <br></p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="do">## extracting Variance Components</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>devel_var.comp <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(devel.model))</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(devel_var.comp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                grp        var1 var2       vcov      sdcor
+1 Population:Family (Intercept) &lt;NA&gt; 0.02398008 0.15485501
+2        Population (Intercept) &lt;NA&gt; 0.04721243 0.21728423
+3          Residual        &lt;NA&gt; &lt;NA&gt; 0.00247785 0.04977801</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="do">## variables for Qst calculation:</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="do">## sigma2_between (Population variance)</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>var_pop <span class="ot">&lt;-</span> devel_var.comp<span class="sc">$</span>vcov[devel_var.comp<span class="sc">$</span>grp <span class="sc">==</span> <span class="st">"Population"</span>]</span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="do">## sigma2_within (Family variance - usually multiplied</span></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a><span class="do">## to estimate additive genetic variance Va)</span></span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="do">## in a half-sib design, Va = 4 * var_family.</span></span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a><span class="do">## In full-sib, it's roughly 2 * var_family.</span></span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>var_fam <span class="ot">&lt;-</span> devel_var.comp<span class="sc">$</span>vcov[devel_var.comp<span class="sc">$</span>grp <span class="sc">==</span> <span class="st">"Population:Family"</span>]</span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>va_est <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> var_fam </span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a><span class="do">## calculating Qst</span></span>
+<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a><span class="do">## formula: Qst = var_pop / (var_pop + 2 * va_est)</span></span>
+<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a>qst <span class="ot">&lt;-</span> var_pop <span class="sc">/</span> (var_pop <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> va_est)</span>
+<span id="cb67-15"><a href="#cb67-15" aria-hidden="true" tabindex="-1"></a><span class="do">##qst</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><br> Here is the estimate of <span class="math inline">\(F_{st}\)</span> based on 1000 boostrap replicates: <br></p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="do">## calculating overall Fst for the same populations</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>pops <span class="ot">&lt;-</span> <span class="fu">unique</span>(devel2<span class="sc">$</span>Population)</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>aRanSyl_genind_pops5 <span class="ot">&lt;-</span> <span class="fu">popsub</span>(aRanSyl_genind_pops2,</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>                               <span class="at">sublist =</span> devel2<span class="sc">$</span>Population)</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a><span class="do">## the number of alleles per locus seems to range from 1 to 2</span></span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a><span class="do">## we have to work with only biallelic loci, so there should always be 2</span></span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">which</span>(<span class="fu">nAll</span>(aRanSyl_genind_pops5) <span class="sc">==</span> <span class="dv">2</span>))</span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>aRanSyl_genind_pops5 <span class="ot">&lt;-</span> aRanSyl_genind_pops5[loc <span class="ot">=</span> n]</span>
+<span id="cb68-13"><a href="#cb68-13" aria-hidden="true" tabindex="-1"></a><span class="do">##aRanSyl_genind_pops3</span></span>
+<span id="cb68-14"><a href="#cb68-14" aria-hidden="true" tabindex="-1"></a><span class="do">##aRanSyl_genind_pops3$pop</span></span>
+<span id="cb68-15"><a href="#cb68-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-16"><a href="#cb68-16" aria-hidden="true" tabindex="-1"></a>wc84_stats <span class="ot">&lt;-</span> <span class="fu">wc</span>(aRanSyl_genind_pops5)</span>
+<span id="cb68-17"><a href="#cb68-17" aria-hidden="true" tabindex="-1"></a>wc84_stats<span class="sc">$</span>FST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.009387548</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="do">## calculating Fst confidence intervals</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>fst_cis <span class="ot">&lt;-</span> <span class="fu">boot.ppfst</span>(aRanSyl_genind_pops5,</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">nboot =</span> <span class="dv">1000</span>, <span class="at">quant =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>fst_ul <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">as.numeric</span>(fst_cis<span class="sc">$</span>ul), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>fst_ll <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">as.numeric</span>(fst_cis<span class="sc">$</span>ll), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><br> Here is how I computed <span class="math inline">\(Q_{st}\)</span> for embryo time based on 1000 boostrap replicates. Embryo time measured roughly as the total number of days from day 0 to hatching day: <br></p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="do">## boostraping to get confidence interval for Qst</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="do">## function to calculate Qst for each bootstrap replicate</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>qst_boot_func <span class="ot">&lt;-</span> <span class="cf">function</span>(data, indices) {</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="do">## resample the data</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> data[indices, ]</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## fit the model (using blmer to avoid singular fits)</span></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>  devel.model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(logEP <span class="sc">~</span> Inc <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Population) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Population<span class="sc">:</span>Family), <span class="at">data =</span> d)</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>  <span class="do">## extract variances</span></span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>  devel_var.comp <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(devel.model))</span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>  var_pop <span class="ot">&lt;-</span> devel_var.comp<span class="sc">$</span>vcov[devel_var.comp<span class="sc">$</span>grp <span class="sc">==</span> <span class="st">"Population"</span>]</span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>  var_fam <span class="ot">&lt;-</span> devel_var.comp<span class="sc">$</span>vcov[devel_var.comp<span class="sc">$</span>grp <span class="sc">==</span> <span class="st">"Population:Family"</span>]</span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a>  <span class="do">## calculate Va (Additive Genetic Variance) and Qst</span></span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>  va <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> var_fam</span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a>  qst_val <span class="ot">&lt;-</span> var_pop <span class="sc">/</span> (var_pop <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> va)</span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(qst_val)</span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a><span class="do">## running 1000 bootstrap iterations</span></span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a><span class="do">##set.seed(123) # for reproducibility</span></span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a>boot_results <span class="ot">&lt;-</span> <span class="fu">boot</span>(<span class="at">data =</span> devel2, <span class="at">statistic =</span> qst_boot_func, <span class="at">R =</span> <span class="dv">1000</span>)</span>
+<span id="cb71-26"><a href="#cb71-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-27"><a href="#cb71-27" aria-hidden="true" tabindex="-1"></a><span class="do">## view the distribution</span></span>
+<span id="cb71-28"><a href="#cb71-28" aria-hidden="true" tabindex="-1"></a><span class="do">##print(boot_results)</span></span>
+<span id="cb71-29"><a href="#cb71-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-30"><a href="#cb71-30" aria-hidden="true" tabindex="-1"></a><span class="do">## 95% Confidence Intervals</span></span>
+<span id="cb71-31"><a href="#cb71-31" aria-hidden="true" tabindex="-1"></a>boot_ci_results <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(boot_results, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"perc"</span>, <span class="st">"bca"</span>))</span>
+<span id="cb71-32"><a href="#cb71-32" aria-hidden="true" tabindex="-1"></a><span class="do">##boot_ci_results$bca</span></span>
+<span id="cb71-33"><a href="#cb71-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-34"><a href="#cb71-34" aria-hidden="true" tabindex="-1"></a><span class="do">## comparing Qst and Fst for the trait</span></span>
+<span id="cb71-35"><a href="#cb71-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-36"><a href="#cb71-36" aria-hidden="true" tabindex="-1"></a>logEP.tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Trait =</span> <span class="st">"logEP"</span>, <span class="at">Qst =</span> qst,</span>
+<span id="cb71-37"><a href="#cb71-37" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Qst_ci_ll =</span> boot_ci_results<span class="sc">$</span>bca[<span class="dv">4</span>],</span>
+<span id="cb71-38"><a href="#cb71-38" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Qst_ci_ul =</span> boot_ci_results<span class="sc">$</span>bca[<span class="dv">5</span>],</span>
+<span id="cb71-39"><a href="#cb71-39" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Fst =</span> wc84_stats<span class="sc">$</span>FST,</span>
+<span id="cb71-40"><a href="#cb71-40" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Fst_ci_ll =</span> fst_ll,</span>
+<span id="cb71-41"><a href="#cb71-41" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Fst_ci_ul =</span> fst_ul)</span>
+<span id="cb71-42"><a href="#cb71-42" aria-hidden="true" tabindex="-1"></a>logEP.tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Trait       Qst Qst_ci_ll Qst_ci_ul         Fst   Fst_ci_ll  Fst_ci_ul
+1 logEP 0.3298507 0.3170094 0.3443278 0.009387548 0.007296373 0.01300312</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>traits_tab <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(logEP.tab[<span class="dv">2</span>], logEP.tab[<span class="dv">3</span>], logEP.tab[<span class="dv">4</span>],</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>                       logEP.tab[<span class="dv">5</span>], logEP.tab[<span class="dv">6</span>], logEP.tab[<span class="dv">7</span>]), <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="do">## plotting Qst and Fst for different traits</span></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>mp <span class="ot">&lt;-</span> <span class="fu">barplot</span>(<span class="fu">as.numeric</span>(traits_tab[ , <span class="dv">1</span>]), <span class="at">space =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"white"</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.00</span>, <span class="fl">0.5</span>),</span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">border =</span> <span class="cn">FALSE</span>, <span class="at">las =</span> <span class="dv">1</span>, <span class="at">axes =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="fu">as.numeric</span>(traits_tab[ , <span class="dv">1</span>]), <span class="at">space =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"gray"</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.00</span>, <span class="fl">0.5</span>), <span class="at">las =</span> <span class="dv">1</span>,</span>
+<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">border =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Mean value based on 1000 boostrap replicates"</span>)</span>
+<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-19"><a href="#cb73-19" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">1</span>, <span class="dv">1</span>], <span class="at">y0 =</span> logEP.tab<span class="sc">$</span>Qst_ci_ll,</span>
+<span id="cb73-20"><a href="#cb73-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">x1 =</span> mp[<span class="dv">1</span>, <span class="dv">1</span>], <span class="at">y1 =</span> logEP.tab<span class="sc">$</span>Qst_ci_ul,</span>
+<span id="cb73-21"><a href="#cb73-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb73-22"><a href="#cb73-22" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> mp[<span class="dv">2</span>, <span class="dv">1</span>], <span class="at">y0 =</span> logEP.tab<span class="sc">$</span>Fst_ci_ll, <span class="at">x1 =</span> mp[<span class="dv">2</span>, <span class="dv">1</span>],</span>
+<span id="cb73-23"><a href="#cb73-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">y1 =</span> logEP.tab<span class="sc">$</span>Fst_ci_ul, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>,</span>
+<span id="cb73-24"><a href="#cb73-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb73-25"><a href="#cb73-25" aria-hidden="true" tabindex="-1"></a><span class="fu">box</span>()</span>
+<span id="cb73-26"><a href="#cb73-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-27"><a href="#cb73-27" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="at">side =</span> <span class="dv">1</span>, <span class="at">at =</span> mp,</span>
+<span id="cb73-28"><a href="#cb73-28" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st])<span class="sc">~</span>EP), <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"F"</span>[st]))),</span>
+<span id="cb73-29"><a href="#cb73-29" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="dv">1</span>)</span>
+<span id="cb73-30"><a href="#cb73-30" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">y =</span> <span class="fl">0.4</span>, <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">"Q"</span>[st])<span class="sc">&gt;</span><span class="fu">italic</span>(<span class="st">"F"</span>[st])),</span>
+<span id="cb73-31"><a href="#cb73-31" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex =</span> <span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-53-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
 </figure>
 </div>
 </div>
