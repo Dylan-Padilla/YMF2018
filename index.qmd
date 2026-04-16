@@ -2194,7 +2194,7 @@ fst_ll <- mean(as.numeric(fst_cis$ll), na.rm = TRUE)
 
 
 <br>
-Here is how I computed $Q_{st}$ for embryo time based on 1000 boostrap replicates.  Embryo time measured roughly as the total number of days from day 0 to hatching day:
+Here is how I computed $Q_{st}$ for embryo period based on 1000 boostrap replicates.
 <br>
 
 

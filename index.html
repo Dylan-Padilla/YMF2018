@@ -1836,7 +1836,7 @@ X710 X711 X712 X713 X714 X715 X716 X717 X719  X72 X720  X73  X74  X75  X76  X77
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait         Qst Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    ET 0.006032598         0 0.03060884 0.01541326 0.01267615 0.01871395</code></pre>
+1    ET 0.006032598         0 0.02857333 0.01541326 0.01263905 0.01871999</code></pre>
 </div>
 </div>
 <p><br><br> This is exactly the same procedure but this time for embryonic period: <br><br></p>
@@ -2011,8 +2011,8 @@ X718 X719  X72 X720  X73  X74  X75  X76  X77  X78  X79
 <span id="cb56-42"><a href="#cb56-42" aria-hidden="true" tabindex="-1"></a>EP.tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  Trait        Qst   Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
-1    EP 0.02227696 0.009973926 0.04166786 0.01541326 0.01267615 0.01871395</code></pre>
+<pre><code>  Trait        Qst  Qst_ci_ll  Qst_ci_ul        Fst  Fst_ci_ll  Fst_ci_ul
+1    EP 0.02227696 0.01077156 0.04292972 0.01541326 0.01263905 0.01871999</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -2211,7 +2211,7 @@ WF5 WF6 WP1 WP2 WP3 WP4 WP5 WP6
 <span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>fst_ll <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">as.numeric</span>(fst_cis<span class="sc">$</span>ll), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><br> Here is how I computed <span class="math inline">\(Q_{st}\)</span> for embryo time based on 1000 boostrap replicates. Embryo time measured roughly as the total number of days from day 0 to hatching day: <br></p>
+<p><br> Here is how I computed <span class="math inline">\(Q_{st}\)</span> for embryo period based on 1000 boostrap replicates. <br></p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -2260,7 +2260,7 @@ WF5 WF6 WP1 WP2 WP3 WP4 WP5 WP6
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Trait       Qst Qst_ci_ll Qst_ci_ul         Fst   Fst_ci_ll  Fst_ci_ul
-1 logEP 0.3298507 0.3170094 0.3443278 0.009387548 0.007296373 0.01300312</code></pre>
+1 logEP 0.3298507 0.3176845 0.3458164 0.009387548 0.007323755 0.01302696</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
