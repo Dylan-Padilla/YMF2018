@@ -2,6 +2,7 @@
 title: "Yale-Myers Forest: Wood Frog Pop Gen Analyses"
 author: "Dylan Padilla <br> (dylan.padilla@yale.edu)"
 institute: "Yale School of the Environment <br> Yale University <br> New Haven, CT 06511"
+engine: knitr
 format:
   html:
     code-fold: true
@@ -251,6 +252,11 @@ Also, I estimated pairwise $F_{st}$ values to determine the genetic differentiat
 
 ## plotting admixture proportions and genetic differentiation
 
+
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_str_diff.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
+
 layout(matrix(c(1, 1, 1, 1, 1, 1,
                 1, 1, 1, 1, 1, 1,
                 2, 2, 2, 2, 2, 2,
@@ -410,6 +416,8 @@ text(x = leg_x + leg_w + 0.2, y = leg_y + leg_h,
 text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
      labels = expression(italic(F[st])), font = 2, cex = 1)
 
+
+##dev.off()
 
 ```
 
@@ -581,6 +589,136 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 
 ```
 
+<br><br>
+
+**Drawing a map to have a better reference of the study area**
+<br>
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, results='hide'}
+
+## load shapefiles
+boundary <- st_read("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/ymf_boundary_full/YMF_Boundary_Full.shp",
+                    quiet = TRUE)
+ct_shape <- states(cb = TRUE, resolution = "500k")
+
+```
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+ct_shape <- ct_shape[ct_shape$STUSPS == "CT", ]
+meta <- read.csv("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/YMF2018_metadata_Mar-20-26.csv")
+meta <- meta[-c(2, 3), c("Pond", "Long", "Lat")]
+meta <- meta[!duplicated(meta$Pond), ]
+meta <- meta[meta$Pond %in% qmplot$pop, ]
+
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_map.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
+layout(matrix(c(1, 1, 1, 2, 2,
+                1, 1, 1, 2, 2,
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1), ncol = 5, nrow = 5, byrow = TRUE))
+
+par(mar = c(5, 7, 4, 2))
+
+
+## TRANSFORM TO LATITUDE/LONGITUDE (WGS84)
+## EPSG 4326 is the standard for GPS/Lat-Lon coordinates
+boundary_ll <- st_transform(boundary, 4326)
+
+# Define Map Bounds in Degrees
+ext <- st_bbox(boundary_ll)
+
+# Initialize plot frame
+plot(st_geometry(boundary_ll), 
+     xlim = c(ext["xmin"], ext["xmax"]), 
+     ylim = c(ext["ymin"], ext["ymax"]),
+     axes = FALSE, 
+     xlab = "Longitude", 
+     ylab = "",
+     border = "transparent", cex.lab = 1.5)
+mtext(side = 2, "Latitude", cex = 1.1, line = 5.5)
+
+par(new = TRUE)
+
+
+# Fill the plotting area with Sand color
+u <- par("usr")
+rect(u[1], u[3], u[2], u[4], col = "#F5DEB3", border = NA)
+grid(col = "darkgray")
+
+# Add Forest (Light Green) and Ponds (Blue)
+plot(st_geometry(boundary_ll), border = "transparent",
+     col = "darkgreen", add = TRUE, cex.lab = 1.5)
+points(x = meta$Long, y = meta$Lat, pch = 16, col = "deepskyblue",
+       cex = 1.5)
+
+ponds.rm <- c("LO", "AW", "DE", "E8", "X9", "X7", "SH", "FE")
+ponds1 <- meta[!meta$Pond %in% ponds.rm, ]
+text(x = ponds1$Long, y = ponds1$Lat, col = "white",
+     labels = ponds1$Pond, pos = 1, offset = 0.5, font = 2)
+
+ponds2 <- meta[meta$Pond %in% ponds.rm, ]
+text(x = ponds2$Long[1], y = ponds2$Lat[1], col = "white",
+     labels = ponds2$Pond[1], pos = 4, offset = 0.5, font = 2)
+text(x = ponds2$Long[2], y = ponds2$Lat[2], col = "white", 
+     labels = ponds2$Pond[2], pos = 2, offset = 0.5, font = 2)
+text(x = ponds2$Long[3], y = ponds2$Lat[3], col = "white", 
+     labels = ponds2$Pond[3], pos = 4, offset = 0.5, font = 2)
+text(x = ponds2$Long[4], y = ponds2$Lat[4], col = "white", 
+     labels = ponds2$Pond[4], pos = 3, offset = 0.5, font = 2)
+text(x = ponds2$Long[5], y = ponds2$Lat[5], col = "white", 
+     labels = ponds2$Pond[5], pos = 4, offset = 0.5, font = 2)
+text(x = ponds2$Long[6], y = ponds2$Lat[6], col = "white", 
+     labels = ponds2$Pond[6], pos = 2, offset = 0.5, font = 2)
+text(x = ponds2$Long[7], y = ponds2$Lat[7], col = "white", 
+     labels = ponds2$Pond[7], pos = 3, offset = 0.5, font = 2)
+
+legend("topleft", legend = c("pond", "forest"), pch = c(16, 15),
+       col = c("deepskyblue", "darkgreen"), bty = "n", cex = 1.3)
+
+
+# X-Axis (Longitude)
+at_x <- axTicks(1)
+labels_x <- paste0(abs(round(at_x, 2)), "° W") # Convert to absolute for "W" notation
+axis(1, at = at_x, labels = labels_x, cex.axis = 1)
+
+# Y-Axis (Latitude)
+at_y <- axTicks(2)
+labels_y <- paste0(round(at_y, 2), "° N")
+axis(2, at = at_y, labels = labels_y, cex.axis = 1, las = 1)
+
+box() # Frame the map
+
+# In CT, 1km is approximately 0.012 degrees of Longitude
+scale_len <- 0.012 
+rect(ext["xmin"] + 0.005, ext["ymin"] + 0.007, 
+     ext["xmin"] + 0.005 + scale_len, ext["ymin"] + 0.006, col = "black")
+text(ext["xmin"] + 0.005 + (scale_len/2), ext["ymin"] + 0.01, "1 km", cex = 1, font = 2)
+addnortharrow(pos = "bottomleft", scale = 0.4)
+
+eastford <- st_point(c(-72.0837, 41.9032))
+eastford_sf <- st_sfc(eastford, crs = 4326)
+plot(st_geometry(ct_shape), 
+     col = "#F5DEB3",   # Sand / Wheat color
+     border = "grey30", 
+     lwd = 1,
+     axes = FALSE,
+     bg = "#F5DEB3")
+
+points(eastford_sf, pch = 15, col = "darkgreen")
+text(eastford_sf - 0.09, "YMF", cex = 0.8)
+legend("center", "Connecticut", cex = 1, bty = "n", text.font = 2)
+
+##dev.off()
+
+
+```
+
+
+
 Based on the results described above, we now know that there seems to be low genetic differentiation between populations (0-0.03) and no population structure.  By contrast, extensive work from the Skelly Lab reveales that there is an effect of global site factor (GSF) and water temperature on development, thermal traits, life-history traits across populations of the wood frog. Sometimes such effects are observed in common garden experiments, rather than in the wild. One puzzling pattern is that individuals from shaded wetlands develop and grow faster than those from warmer environments, potentially compensating for shorter growing seasons (countergradient variation).
 
 Now, here are the things that we do not know and could address moving forward:
@@ -618,26 +756,14 @@ cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRan
 #| echo: true
 #| output: true
 
-cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_Combined/aRanSyl_Combined.tpl"
-
-```
-
-
-### Model of ancient split with gene flow
-
-```{bash}
-
-#| echo: true
-#| output: true
-
-cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_AncientFlow/aRanSyl_AncientFlow.tpl"
+cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_RecentSplit_Migration/aRanSyl_RecentSplit_Migration.tpl"
 
 ```
 <br><br><br>
 
 --------------------------------------
 
-I ran fastsimcoal 50 times, selected the run with the best parameter estimates, and calculated the AIC of the model (see below).  The results suggested that a model of recent split with no gene flow was strongly supported by the data (see table below).
+I ran fastsimcoal 50 times, selected the run with the best parameter estimates, and calculated the AIC of the model (see below).  The results suggested that a model of recent split with asymetric gene flow was strongly supported by the data (see table below).
 
 
 ### Model comparison beased on AIC
@@ -646,7 +772,7 @@ I ran fastsimcoal 50 times, selected the run with the best parameter estimates, 
 
 aic.table <- read.table("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/AIC_model_table.txt", header = TRUE, sep = "")
 aic.table <- aic.table[-c(2, 4), ]
-rownames(aic.table) <- c("Ancient gene flow", "Recent gene flow", "No gene flow")
+rownames(aic.table) <- c("RecentSplit no gene flow", "RecentSplit with gene flow")
 aic.table$deltaL <- as.numeric(aic.table$deltaL)
 aic.table$AIC <- as.numeric(aic.table$AIC)
 kable(aic.table, digits = 2, format = "html") %>%
@@ -659,89 +785,123 @@ kable(aic.table, digits = 2, format = "html") %>%
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
-####### Plotting results of the demographic model ##########
-
-## loading the data
-best_lh <- read.table(
-    file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/SFS/fastsimcoal/aRanSyl_RecentSplit/fsc-selection/bestrun/aRanSyl_RecentSplit.bestlhoods", header = TRUE)
-
-## extracting parameters for plotting 
-n_pops <- 5
-pop_sizes <- as.numeric(best_lh[1, 1:n_pops])
-n_anc <- best_lh$NANC
-t_div <- best_lh$TDIV
-pop_labels <- colnames(best_lh)[1:n_pops] # Extracts NPOP0, NPOP1, etc.
-new_labels <- c("BS", "DT", "E8", "PB", "X7")
-pop_labels <- new_labels
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_demo_model.png",
+##    width = 7, height = 7, units = "in", res = 360)
 
 
-## scaling for Spacing
-## we want the widest branch to occupy only 60% of the horizontal space between centers
-## to ensure there is always a visible gap (space) between populations.
-max_val <- max(c(pop_sizes, n_anc))
-scale_factor <- max_val / 0.6 
+# -------------------------------------------------------------------------
+# 1. DATA INPUT (Values from .bestlhoods and .par files)
+# -------------------------------------------------------------------------
+# Population sizes (NPOP0 to NPOP4)
+n_sizes <- c(985, 697, 451, 306, 1290)
+names(n_sizes) <- c("BS", "DT", "E8", "PB", "X7")
 
-widths <- pop_sizes / scale_factor
-n_anc_width <- n_anc / scale_factor
+# Divergence Time (TDIV)
+t_div <- 24
 
-## setup Plot Area
-## increase bottom margin (first value in 'mar') to make room for rotated labels
-par(mar = c(7, 5, 4, 2)) 
+# Migration Matrix (Row = Source, Col = Sink)
+# Read values exactly as they appear in the .par migration matrix
+mig_matrix <- matrix(c(
+  0.0000000e+00, 3.5742554e-03, 4.4949653e-03, 8.1153350e-08, 6.2972920e-06,
+  1.5531556e-07, 0.0000000e+00, 3.0488758e-07, 1.7747878e-06, 2.4624709e-03,
+  5.2343091e-06, 6.0826895e-04, 0.0000000e+00, 2.9789123e-07, 3.6922371e-07,
+  2.2143443e-05, 1.3147249e-02, 3.9842576e-04, 0.0000000e+00, 4.0760683e-04,
+  3.1822288e-06, 1.2188775e-07, 9.7335104e-07, 2.8734315e-06, 0.0000000e+00
+), nrow = 5, byrow = TRUE)
 
-plot(1, type = "n", 
-     xlim = c(0.5, n_pops + 0.5), 
-     ylim = c(-t_div * 0.1, t_div * 1.9), 
-     xlab = "", ylab = "Time (Generations)",
-     xaxt = "n", bty = "n", las = 1)
+# -------------------------------------------------------------------------
+# 2. PLOT PARAMETERS
+# -------------------------------------------------------------------------
+n_pops <- length(n_sizes)
+x_coords <- seq(1.5, 9.5, length.out = n_pops)
+max_width <- 0.7
+widths <- (n_sizes / max(n_sizes)) * max_width
 
-##  drawing Lineages and add Ne at tips
-for(i in 1:n_pops){
-  w <- widths[i] / 2
-  # Draw the branch
-  polygon(c(i - w, i + w, i + w, i - w), 
-          c(0, 0, t_div, t_div), 
-          col = "tan", border = "chocolate4")
-    text(i, t_div * 0.05, labels = round(pop_sizes[i], 0), 
-       cex = 0.6, font = 2, col = "chocolate4")
-  text(i, t_div*0.05+3, labels = rep(expression(italic(N[e])), 5), 
-       cex = 0.6, font = 2, col = "chocolate4")
+# Setup Plot Area
+par(mar = c(5, 5, 2, 2), family = "sans")
+plot(NULL, xlim = c(0, 11), ylim = c(-3, t_div + 8), 
+     xlab = "", ylab = "Time (generations)", 
+     xaxt = "n", frame.plot = FALSE, las = 1)
+axis(2, at = seq(0, t_div, 5), labels = FALSE)
+
+# -------------------------------------------------------------------------
+# 3. DRAW POPULATION BRANCHES (Star Split)
+# -------------------------------------------------------------------------
+anc_x <- mean(x_coords)
+
+for (i in 1:n_pops) {
+  # Current population bar (Width scaled by Ne)
+  rect(x_coords[i] - widths[i]/2, 0, x_coords[i] + widths[i]/2, t_div, 
+       col = "gray95", border = "black", lwd = 1.2)
+  
+  # Connection to Ancestral node at TDIV
+  segments(x_coords[i], t_div, anc_x, t_div + 5, lwd = 1.5, col = "gray40")
+  
+  # Labels
+  text(x_coords[i], -2, names(n_sizes)[i], font = 2, cex = 1)
+  text(x_coords[i], t_div/4, paste0("Ne = ", n_sizes[i]), srt = 90, cex = 0.7)
 }
 
-## drawing ancestral trunk
-trunk_center <- (1 + n_pops) / 2
-aw <- n_anc_width / 2
-polygon(c(trunk_center - aw, trunk_center + aw, trunk_center + aw, trunk_center - aw),
-        c(t_div, t_div, t_div * 1.5, t_div * 1.5),
-        col = "tan", border = "chocolate4")
-NANC <- "1119"
-text(trunk_center, t_div+5, NANC, font = 2, cex = 0.6, col = "chocolate4")
-text(trunk_center, t_div+8, expression(italic("N"[e])), font = 2, cex = 0.6,
-                                        col = "chocolate4")
+# Ancestral Population Marker
+points(anc_x, t_div + 5, pch = 21, bg = "black", col = "white", cex = 2)
+text(anc_x, t_div + 7, "Ancestral Population", font = 2, cex = 0.9)
 
-## drawing phylogenetic merge lines
-for(i in 1:n_pops){
-  segments(i, t_div, trunk_center, t_div, col = "chocolate4", lwd = 1.5)
+# -------------------------------------------------------------------------
+# 4. DRAW NON-OVERLAPPING MIGRATION ARROWS
+# -------------------------------------------------------------------------
+# Define a threshold to avoid cluttering with near-zero migration rates
+threshold <- 1e-4
+
+# Create a list of all significant migrations to calculate unique offsets
+sig_migrations <- which(mig_matrix > threshold, arr.ind = TRUE)
+
+# Vertical spacing setup
+y_start <- 4  # First arrow height
+y_gap <- (t_div - 6) / nrow(sig_migrations) # Space arrows evenly along the y-axis
+
+for (k in 1:nrow(sig_migrations)) {
+  row <- sig_migrations[k, 1] # Source
+  col <- sig_migrations[k, 2] # Sink
+  
+  # Calculate unique y-position for this specific migration event
+  y_pos <- y_start + (k * y_gap)
+  
+  # Source and destination X coordinates
+  # We start/end the arrow at the edge of the population bar
+  x_start <- x_coords[row] + (if(x_coords[row] < x_coords[col]) widths[row]/2 else -widths[row]/2)
+  x_end <- x_coords[col] + (if(x_coords[row] < x_coords[col]) -widths[col]/2 else widths[col]/2)
+  
+  # Draw Arrow
+  arrows(x_start, y_pos, x_end, y_pos, 
+         length = 0.08, 
+         lwd = log10(mig_matrix[row, col] * 10000) + 1, # Thickness scaled to rate
+         col = adjustcolor("royalblue4", alpha.f = 0.7))
+  
+  # Label the rate above the arrow
+  text(mean(c(x_start, x_end)), y_pos + 0.6, 
+       labels = formatC(mig_matrix[row, col], format = "e", digits = 1), 
+       cex = 0.55, col = "royalblue4", font = 3)
 }
 
-## adding final labels
-## divergence time label
-text(trunk_center-0.6, t_div, paste("TDIV:", round(t_div, 0)),
-     pos = 3, font = 2, col = "darkred", cex = 0.8)
+# -------------------------------------------------------------------------
+# 5. LEGEND
+# -------------------------------------------------------------------------
+legend("topleft", legend = "Gene flow", lwd = c(2, 10),
+       col = "royalblue4", bty = "n", cex = 0.6)
+##legend("topleft", legend = c("Gene flow", "Effective population size (Ne)"), 
+##       lwd = c(2, 10), col = c("royalblue4", "gray95"), bty = "n", cex = 0.6)
 
-## x-axis labels for clarity
-text(x = 1:n_pops+0.1, y = -t_div * 0.08, labels = pop_labels, 
-     adj = 1, xpd = TRUE, cex = 1)
-
+##dev.off()
 
 ```
 
 -------------------------------------------------
 
-Based on the results of the model, we can estimate how long it would take for the populations to reach some levels of genetic differentiation in the absence of selection and migration.  We can do that by estimating pairwise $F_{st}$ between DT and E8.  I picked those two populations because we want to control for population size (you can see that they are about the same size).
+Based on the results of the model, we can estimate how long it would take for the populations to reach some levels of genetic differentiation in face of genetic drift, recombination, gene flow, but not selection.  We can do that by estimating pairwise $F_{st}$ between DT and E8.
 
 I estimated the time for populations to reach $F_{st}>0.09$.  Although, this threshold might seem arbitrary, previous personal observations across the range of the species suggest that populations can be highly differentiated with $F_{st}=0.8$. However, a previous work on the population genetics of the wood frog in an altered forested wetland ecosystem found a max $F_{st}=0.05$ ([Skibbe *et. al.*, (2021)](https://www.herpconbio.org/Volume_16/Issue_1/Skibbe_etal_2021.pdf)), and they considered that value as a significant level of genetic differentiation.
 
-To estimate the time ($t$) required to reach those levels of genetic differentiation ($F_{st}=0.05$ and $F_{st}>0.09$), I simulated a $10~Mb$ region of the genome, with a mutation rate of $1.3\times10^{-9}$, and a baseline recombination rate of $1\times10^{-8}$. I ran the simulation in SLiM as indicated below:
+To estimate the time ($t$) required to reach those levels of genetic differentiation ($F_{st}=0.05$ and $F_{st}>0.09$), I simulated a $10~Mb$ region of the genome, with a mutation rate of $1.3\times10^{-9}$, and a baseline recombination rate of $1\times10^{-8}$, and an asymetrical gene flow of $m=6.1\times10^{-4}$. I ran the simulation in SLiM as indicated below:
 
 ```{bash}
 
@@ -752,7 +912,7 @@ cat "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/scripts/slim/slim-si
 
 ```
 
-The results of the simulation indicate that for two populations of about the same size (DT and E8), the $t$ required for *genetic drift*, but not *selection* nor *migration*, to reach at least $F_{st}=0.05$ is about $250$ generations.  According to the most likely demographic scenario, the populations of Yale-Myers Forest split $62$ generations ago, which is not long enough for us to observe significant genetic differentiation.  Note that this is just what would happen between populations in the presence of genetic drift, mutation, and recombination.  This is not evaluating the role of selection and migration.
+The results of the simulation indicate that for two populations (DT and E8), the $t$ required for *genetic drift*, *recomnbination*, *gene flow*, but not *selection*, to reach at least $F_{st}=0.05$ is about $200$ generations.  According to the most likely demographic scenario, the populations of Yale-Myers Forest split $24$ generations ago, which is not long enough for us to observe a genetic differentiation of at least $0.05$.  Note that this is just what would happen between populations in the presence of genetic drift, recombination, and gene flow.  This is not evaluating the role of selection.
 
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
@@ -821,6 +981,7 @@ summary_stats <- summary_stats[order(summary_stats$generation), ]
 ## we set ylim to slightly above the upper CI to ensure everything fits
 plot(summary_stats$generation, summary_stats$mean_fst, type = "n",
      ylim = c(0, max(summary_stats$upper, na.rm = TRUE, 0.11)),
+     xlim = c(0, 500),
      xlab = "Generations since split",
      ylab = expression(Pairwise~italic(F[st])~between~DT~and~E8),
      las = 1)
@@ -848,7 +1009,228 @@ legend("topleft",
        lty = c(1, NA, 2),
        lwd = c(2, NA, 1.5),
        bty = "n")
-text(x = 625, y = 0.07, expression(italic(t)%~~%625), cex = 1.5)
+text(x = 400, y = 0.06, expression(italic(t)%~~%480~generations), cex = 1.2)
+
+```
+
+
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE, include = FALSE, echo = FALSE}
+
+
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_panel2.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
+layout(matrix(c(0, 1, 1, 0,
+                0, 1, 1, 0,
+                0, 2, 2, 0,
+                0, 2, 2, 0), ncol = 4, nrow = 4, byrow = 4))
+
+## Demographic model of Recent Split with Migration
+
+# -------------------------------------------------------------------------
+# 1. DATA INPUT (Values from .bestlhoods and .par files)
+# -------------------------------------------------------------------------
+# Population sizes (NPOP0 to NPOP4)
+n_sizes <- c(985, 697, 451, 306, 1290)
+names(n_sizes) <- c("BS", "DT", "E8", "PB", "X7")
+
+# Divergence Time (TDIV)
+t_div <- 24
+
+# Migration Matrix (Row = Source, Col = Sink)
+# Read values exactly as they appear in the .par migration matrix
+mig_matrix <- matrix(c(
+  0.0000000e+00, 3.5742554e-03, 4.4949653e-03, 8.1153350e-08, 6.2972920e-06,
+  1.5531556e-07, 0.0000000e+00, 3.0488758e-07, 1.7747878e-06, 2.4624709e-03,
+  5.2343091e-06, 6.0826895e-04, 0.0000000e+00, 2.9789123e-07, 3.6922371e-07,
+  2.2143443e-05, 1.3147249e-02, 3.9842576e-04, 0.0000000e+00, 4.0760683e-04,
+  3.1822288e-06, 1.2188775e-07, 9.7335104e-07, 2.8734315e-06, 0.0000000e+00
+), nrow = 5, byrow = TRUE)
+
+# -------------------------------------------------------------------------
+# 2. PLOT PARAMETERS
+# -------------------------------------------------------------------------
+n_pops <- length(n_sizes)
+x_coords <- seq(1.5, 9.5, length.out = n_pops)
+max_width <- 0.7
+widths <- (n_sizes / max(n_sizes)) * max_width
+
+# Setup Plot Area
+par(mar = c(4, 5, 1, 1), family = "sans")
+plot(NULL, xlim = c(0, 11), ylim = c(-3, t_div + 8), 
+     xlab = "", ylab = "Time (generations)", 
+     xaxt = "n", frame.plot = FALSE, las = 1)
+axis(2, at = seq(0, t_div, 5), labels = FALSE)
+
+# -------------------------------------------------------------------------
+# 3. DRAW POPULATION BRANCHES (Star Split)
+# -------------------------------------------------------------------------
+anc_x <- mean(x_coords)
+
+for (i in 1:n_pops) {
+  # Current population bar (Width scaled by Ne)
+  rect(x_coords[i] - widths[i]/2, 0, x_coords[i] + widths[i]/2, t_div, 
+       col = "gray95", border = "black", lwd = 1.2)
+  
+  # Connection to Ancestral node at TDIV
+  segments(x_coords[i], t_div, anc_x, t_div + 5, lwd = 1.5, col = "gray40")
+  
+  # Labels
+  text(x_coords[i], -2, names(n_sizes)[i], font = 2, cex = 1.2)
+  ##text(x_coords[i], t_div/4, paste0("Ne = ", n_sizes[i]), srt = 90, cex = 0.7)
+}
+
+# Ancestral Population Marker
+points(anc_x, t_div + 5, pch = 21, bg = "black", col = "white", cex = 2)
+text(anc_x, t_div + 7, "Ancestral Population", font = 2, cex = 0.9)
+
+# -------------------------------------------------------------------------
+# 4. DRAW NON-OVERLAPPING MIGRATION ARROWS
+# -------------------------------------------------------------------------
+# Define a threshold to avoid cluttering with near-zero migration rates
+threshold <- 1e-4
+
+# Create a list of all significant migrations to calculate unique offsets
+sig_migrations <- which(mig_matrix > threshold, arr.ind = TRUE)
+
+# Vertical spacing setup
+y_start <- 4  # First arrow height
+y_gap <- (t_div - 6) / nrow(sig_migrations) # Space arrows evenly along the y-axis
+
+for (k in 1:nrow(sig_migrations)) {
+  row <- sig_migrations[k, 1] # Source
+  col <- sig_migrations[k, 2] # Sink
+  
+  # Calculate unique y-position for this specific migration event
+  y_pos <- y_start + (k * y_gap)
+  
+  # Source and destination X coordinates
+  # We start/end the arrow at the edge of the population bar
+  x_start <- x_coords[row] + (if(x_coords[row] < x_coords[col]) widths[row]/2 else -widths[row]/2)
+  x_end <- x_coords[col] + (if(x_coords[row] < x_coords[col]) -widths[col]/2 else widths[col]/2)
+  
+  # Draw Arrow
+  arrows(x_start, y_pos, x_end, y_pos, 
+         length = 0.08, 
+         lwd = log10(mig_matrix[row, col] * 10000) + 1, # Thickness scaled to rate
+         col = adjustcolor("royalblue4", alpha.f = 0.7))
+  
+  # Label the rate above the arrow
+  text(mean(c(x_start, x_end)), y_pos + 1.5, 
+       labels = formatC(mig_matrix[row, col], format = "e", digits = 1), 
+       cex = 0.8, col = "royalblue4", font = 3)
+}
+
+# -------------------------------------------------------------------------
+# 5. LEGEND
+# -------------------------------------------------------------------------
+legend("topleft", legend = "Gene flow", lwd = c(2, 10),
+       col = "royalblue4", bty = "n", cex = 0.8)
+mtext(side = 2, at = 34, text = "A", line = 3, font = 2, las = 1)
+##legend("topleft", legend = c("Gene flow", "Effective population size (Ne)"), 
+##       lwd = c(2, 10), col = c("royalblue4", "gray95"), bty = "n", cex = 0.6)
+
+
+
+## SLiM simulation of Fst for two populations (DT vs E8)
+
+## function to clean and read the SLiM output file
+read_slim_output <- function(filename) {
+  # Read all lines into a vector
+  all_lines <- readLines(filename)
+  
+  ## find the index of the line that contains column headers
+  header_index <- which(grepl("generation,fst", all_lines))[1]
+  
+  ## check if header was found
+  if (is.na(header_index)) {
+    stop(paste("Could not find the header 'generation,fst' in", filename))
+  }
+  
+  ## keep only the header and the rows below it
+  data_lines <- all_lines[header_index:length(all_lines)]
+  
+  ## filter out any non-data lines at the end (like "SIGNIFICANT DIFFERENTIATION REACHED")
+  ## we only keep the header line and lines that look like: number,number
+  data_lines <- data_lines[grepl("^generation,fst$|^[0-9.-]+,[0-9.-]+", data_lines)]
+  
+  ## convert the cleaned lines into a data frame
+  df <- read.csv(text = data_lines, header = TRUE)
+  return(df)
+}
+
+## load all the run files (e.g., run_1.csv, run_2.csv, etc.)
+files <- list.files(path = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/scripts/slim/",
+                    pattern = "run_.*\\.csv", full.names = TRUE)
+all_runs_list <- lapply(files, function(f) {
+  df <- read_slim_output(f)
+  df$run_id <- f  # add a column to track which run this is
+  return(df)
+})
+
+## create the all_data object by merging the list
+all_data <- do.call(rbind, all_runs_list)
+
+## aggregate the data (calculate mean and SD per generation)
+means <- aggregate(fst ~ generation, data = all_data, FUN = mean)
+sds   <- aggregate(fst ~ generation, data = all_data, FUN = sd)
+counts <- aggregate(fst ~ generation, data = all_data, FUN = length)
+
+## merge these into a summary table and calculate CI
+summary_stats <- means
+names(summary_stats)[2] <- "mean_fst"
+summary_stats$sd <- sds$fst
+summary_stats$n  <- counts$fst
+
+## calculate 95% CI: Mean +/- (1.96 * (SD / sqrt(n)))
+summary_stats$se <- summary_stats$sd / sqrt(summary_stats$n)
+summary_stats$lower <- summary_stats$mean_fst - (1.96 * summary_stats$se)
+summary_stats$upper <- summary_stats$mean_fst + (1.96 * summary_stats$se)
+
+## sort by generation (CRITICAL for polygon() to work)
+summary_stats <- summary_stats[order(summary_stats$generation), ]
+##head(summary_stats)
+##tail(summary_stats)
+
+
+## initialize the plot area
+## we set ylim to slightly above the upper CI to ensure everything fits
+plot(summary_stats$generation, summary_stats$mean_fst, type = "n",
+     ylim = c(0, max(summary_stats$upper, na.rm = TRUE, 0.11)),
+     xlim = c(0, 500),
+     xlab = "Generations since split",
+     ylab = expression(Pairwise~italic(F[st])~between~DT~and~E8),
+     las = 1)
+
+## draw the smooth CI envelope
+## we  use na.omit to prevent gaps if some generations have NAs
+clean_stats <- na.omit(summary_stats)
+polygon(c(clean_stats$generation, rev(clean_stats$generation)),
+        c(clean_stats$upper, rev(clean_stats$lower)),
+        col = rgb(0, 0, 1, 0.2), border = NA)
+## add the mean Line
+lines(summary_stats$generation, summary_stats$mean_fst, 
+      col = "blue", lwd = 2)
+
+## add the threshold line (0.09)
+abline(h = 0.09, col = "red", lty = 2, lwd = 1.5)
+
+## add legend and grid
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+legend("topleft", 
+       legend = c("Mean Fst", "95% CI", "Threshold (0.09)"),
+       col = c("blue", NA, "red"),
+       fill = c(NA, rgb(0.2, 0.4, 0.8, 0.3), NA),
+       border = NA,
+       lty = c(1, NA, 2),
+       lwd = c(2, NA, 1.5),
+       bty = "n")
+text(x = 400, y = 0.06, expression(italic(t)%~~%480~generations), cex = 1)
+mtext(side = 2, at = 0.125, text = "B", line = 3, font = 2, las = 1)
+
+##dev.off()
 
 ```
 
@@ -896,6 +1278,8 @@ The results show that both the observed and expected heterozygosity slightly var
 
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
 
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_hexpop.png",
+##    width = 7, height = 7, units = "in", res = 360)
 
 barplot(het, ylim = c(0, 0.2), las = 1, beside = TRUE, border = FALSE,
         ylab = "Heterozygosity", xaxt = "n", col = c("white", "white"))
@@ -910,6 +1294,8 @@ box()
 axis(side = 1, at = mp[1, ]+0.5, labels = colnames(het), cex.axis = 0.5)
 legend("topleft", legend = c("observed", "expected"), pch = 15, bty = "n",
        cex = 0.8, col = c(gray(0.3), gray(0.9)))
+
+##dev.off()
 
 ```
 
@@ -1014,8 +1400,7 @@ aRanSyl_genind_pops2 <- popsub(gid = aRanSyl_genind_pops,
 
 n <- names(which(nAll(aRanSyl_genind_pops2) == 2))
 aRanSyl_genind_pops2 <- aRanSyl_genind_pops2[loc = n]
-##aRanSyl_genind_pops2
-
+aRanSyl_genind_pops2
 
 ## we have to make sure that the order of the rows in
 ## the genind$tab object is the same order of the rows
@@ -1176,6 +1561,11 @@ X.env.pop <- X.env.pop[order(X.env.pop$pop), ]
 ##str(X.env.pop)
 mean.env <- aggregate(X.env.pop[1:6], list(pop = X.env.pop$pop),
                       mean)
+
+
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_env.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
 ##mean.env
 x <- 1:18
 
@@ -1201,6 +1591,9 @@ legend("topleft", legend = c("elevation", "wtGSF", "area",
        lwd = 2,
        col = c("gold", "skyblue", "orange", "red"),
        bty = "n", cex = 0.8)
+
+
+##dev.off()
 
 ```
 
@@ -1242,6 +1635,9 @@ loc2.1 <- man[man$SNP == "loc22468_pos103", ]
 
 ## plotting manhattan plot
 
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_cand_snps.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
 par(mgp = c(2.7, 1, 0))
 manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", xaxt = "n",
           ylim = c(0, 10), type = "n", cex.axis = 0.8, cex = 0.8,
@@ -1262,6 +1658,7 @@ text(x = loc2.1$BP+16e3, y = 8.5, labels = "Col16a1", cex = 0.6, col = "red")
 
 box()
 
+##dev.off()
 
 
 ```
@@ -1323,6 +1720,8 @@ col16a1.sd.freq <- aggregate(cbind(sd = freq) ~ pop,
 col16a1.mean.freq$sd <- col16a1.sd.freq$sd
 ##str(col16a1.mean.freq)
 
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_allele_freq.png",
+##    width = 7, height = 7, units = "in", res = 360)
 
 x <- 1:18
 plot(mean ~ x, data = Rab28.mean.freq,
@@ -1353,6 +1752,114 @@ legend("topleft", legend = c("col16a1", "Rab28"),
        lty = 1, pch = 16, bty = "n",
        col = c("gray", "black"), cex = 0.8)
 
+
+##dev.off()
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, eval = FALSE}
+
+
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_panel.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
+
+layout(matrix(c(0, 1, 1, 0,
+                0, 1, 1, 0,
+                0, 2, 2, 0,
+                0, 2, 2, 0,
+                0, 3, 3, 0,
+                0, 3, 3, 0), ncol = 4, nrow = 6, byrow = TRUE))
+
+## manhattan plot
+
+par(mar = c(3.5, 5, 0.5, 1), mgp = c(2.7, 1, 0))
+manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", xaxt = "n",
+          ylim = c(0, 10), type = "n", cex.axis = 0.8, cex = 0.8,
+          genomewideline = FALSE)
+grid()
+par(new = TRUE)
+
+manhattan(man, chr="CHR", bp="BP", snp="SNP", p="P", ylim = c(0, 10),
+          yaxt = "n", ylab = "", xlab = "", cex.axis = 0.6, cex = 0.8,
+          genomewideline = FALSE)
+Arrows(x0 = loc1.1$BP, y0 = 7, x1 = loc1.1$BP, y1 = 9, col = "red",
+       arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2)
+text(x = loc1.1$BP, y = 9.7, labels = "Rab28", cex = 0.6, col = "red")
+Arrows(x0 = loc2.1$BP+16e3, y0 = 6, x1 = loc2.1$BP+16e3, y1 = 8, col = "red", 
+       arr.type = "triangle", code = 1, lwd = 1.5, arr.length = 0.2) ## I does not
+## the position of the SNP - please double check!!
+text(x = loc2.1$BP+16e3, y = 8.5, labels = "Col16a1", cex = 0.6, col = "red")
+
+box()
+mtext(side = 2, 'A', line = 3, las = 2, at = 10, font = 2)
+
+## Rab28 and Col16a1 frequencies
+
+
+x <- 1:18
+plot(mean ~ x, data = Rab28.mean.freq,
+     type = "n", xaxt = "n", las = 1,
+     xlab = "", ylab = "", ylim = c(0, 0.5), axes = FALSE)
+
+grid()
+par(new = TRUE)
+
+plot(mean ~ x, data = Rab28.mean.freq,
+     type = "l", xaxt = "n", las = 1,
+     xlab = "", ylab = "Mean allele frequency",
+     ylim = c(0, 0.5),
+     pch = 16, bg = "black", lwd = 2)
+lines(mean ~ x, data = col16a1.mean.freq,
+      col = "gray", pch = 16, lwd = 2)
+##lines(mean ~ x, data = mean.freq, col = "gold", lwd = 2)
+##arrows(x0 = x, y0 = Rab28.mean.freq$mean - Rab28.mean.freq$sd, x1 = x,
+##       y1 = Rab28.mean.freq$mean + Rab28.mean.freq$sd, code = 3, angle = 90,
+##       length = 0.1)
+##arrows(x0 = x, y0 = col16a1.mean.freq$mean - col16a1.mean.freq$sd, x1 = x,
+##       y1 = col16a1.mean.freq$mean + col16a1.mean.freq$sd, code = 3, angle = 90,
+##       length = 0.1)
+axis(side = 1, at = x, labels = Rab28.mean.freq$pop,
+     cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2.5, cex = 0.8)
+legend("topleft", legend = c("col16a1", "Rab28"),
+       lty = 1, pch = 16, bty = "n",
+       col = c("gray", "black"), cex = 0.8)
+mtext(side = 2, 'B', line = 3, las = 2, at = 0.55, font = 2)
+
+
+## environment
+
+
+x <- 1:18
+
+plot(elevation ~ x, data = mean.env, type = "n", pch = 16,
+     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
+     ylim = c(-3, 4), xlab = "", axes = FALSE)
+grid()
+par(new = TRUE)
+plot(elevation ~ x, data = mean.env, type = "l", pch = 16,
+     col = "gold", xaxt = "n", las = 1, ylab = "Environment",
+     ylim = c(-3, 4), xlab = "", lwd = 2)
+lines(wtGSF ~ x, data = mean.env, type = "l", pch = 16,
+     col = "skyblue", lwd = 2)
+lines(area_m2 ~ x, data = mean.env, type = "l", pch = 16,
+     col = "orange", lwd = 2)
+lines(Dis_to_road ~ x, data = mean.env, type = "l", pch = 16,
+     col = "red", lwd = 2)
+
+axis(side = 1, at = x, labels = mean.env$pop, cex.axis = 0.5)
+mtext(side = 1, 'Pond', line = 2.5, cex = 0.8)
+legend("topleft", legend = c("elevation", "wtGSF", "area",
+                             "distance to road"),
+       lwd = 2,
+       col = c("gold", "skyblue", "orange", "red"),
+       bty = "n", cex = 0.8)
+
+mtext(side = 2, 'C', line = 3, las = 2, at = 4.8, font = 2)
+
+##dev.off()
 
 ```
 
@@ -2074,7 +2581,7 @@ text(x = 1, y = 0.035, expression(italic("Q"[st])%~~%italic("F"[st])),
 ## setting up the CSV file with columns:
 ## population, family, EmbryoTime)
 
-devel2 <- read.csv("/Volumes/SkellyLab/Andis/aa2258_backup_mcleary/HPC_backup/Rwork/EPestimates.csv", row.names = 1)
+devel2 <- read.csv("/Volumes/YSE_Data_Labs/SkellyLab/Andis/aa2258_backup_mcleary/HPC_backup/Rwork/EPestimates.csv", row.names = 1)
 ##str(devel2)
 
 
@@ -2112,7 +2619,48 @@ tapply(devel2$EP, devel2$Family, length)
 
 ```
 
+
+<br>
+Here is the estimate of $F_{st}$ based on 1000 boostrap replicates:
+<br>
+
 ```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+## calculating overall Fst for the same populations
+
+pops <- unique(devel2$Population)
+
+aRanSyl_genind_pops5 <- popsub(aRanSyl_genind_pops2,
+                               sublist = devel2$Population)
+##save(aRanSyl_genind_pops5,
+##     file = "/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_genind_pos_pops_Ne.Rdata")
+
+## the number of alleles per locus seems to range from 1 to 2
+## we have to work with only biallelic loci, so there should always be 2
+
+n <- names(which(nAll(aRanSyl_genind_pops5) == 2))
+aRanSyl_genind_pops5 <- aRanSyl_genind_pops5[loc = n]
+##aRanSyl_genind_pops3
+##aRanSyl_genind_pops3$pop
+
+wc84_stats <- wc(aRanSyl_genind_pops5)
+wc84_stats$FST
+
+## calculating Fst confidence intervals
+
+fst_cis <- boot.ppfst(aRanSyl_genind_pops5,
+                      nboot = 1000, quant = c(0.025, 0.975))
+
+fst_ul <- mean(as.numeric(fst_cis$ul), na.rm = TRUE)
+fst_ll <- mean(as.numeric(fst_cis$ll), na.rm = TRUE)
+
+```
+
+
+```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
+
+devel2 <- devel2[devel2$Population %in% levels(pop(aRanSyl_genind_pops5)), ]
+##unique(devel2$Population)
 
 ## fitting the Mixed-Effects Model
 ## we treat Population and Family (nested in Population) as random effects
@@ -2154,41 +2702,6 @@ va_est <- 2 * var_fam
 ## formula: Qst = var_pop / (var_pop + 2 * va_est)
 qst <- var_pop / (var_pop + 2 * va_est)
 ##qst
-
-```
-
-
-<br>
-Here is the estimate of $F_{st}$ based on 1000 boostrap replicates:
-<br>
-
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE}
-
-## calculating overall Fst for the same populations
-
-pops <- unique(devel2$Population)
-
-aRanSyl_genind_pops5 <- popsub(aRanSyl_genind_pops2,
-                               sublist = devel2$Population)
-
-## the number of alleles per locus seems to range from 1 to 2
-## we have to work with only biallelic loci, so there should always be 2
-
-n <- names(which(nAll(aRanSyl_genind_pops5) == 2))
-aRanSyl_genind_pops5 <- aRanSyl_genind_pops5[loc = n]
-##aRanSyl_genind_pops3
-##aRanSyl_genind_pops3$pop
-
-wc84_stats <- wc(aRanSyl_genind_pops5)
-wc84_stats$FST
-
-## calculating Fst confidence intervals
-
-fst_cis <- boot.ppfst(aRanSyl_genind_pops5,
-                      nboot = 1000, quant = c(0.025, 0.975))
-
-fst_ul <- mean(as.numeric(fst_cis$ul), na.rm = TRUE)
-fst_ll <- mean(as.numeric(fst_cis$ll), na.rm = TRUE)
 
 ```
 
@@ -2256,6 +2769,9 @@ traits_tab <- matrix(c(logEP.tab[2], logEP.tab[3], logEP.tab[4],
 
 ## plotting Qst and Fst for different traits
 
+##png("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/github/imgs/YMF_qst_fst.png",
+##    width = 7, height = 7, units = "in", res = 360)
+
 mp <- barplot(as.numeric(traits_tab[ , 1]), space = FALSE,
               col = c("white", "white"), ylim = c(0.00, 0.5),
               border = FALSE, las = 1, axes = FALSE)
@@ -2266,7 +2782,7 @@ par(new = TRUE)
 barplot(as.numeric(traits_tab[ , 1]), space = FALSE,
         col = c("black", "gray"), ylim = c(0.00, 0.5), las = 1,
         xlab = "", border = FALSE,
-        ylab = "Mean value based on 1000 boostrap replicates")
+        ylab = "")
 
 arrows(x0 = mp[1, 1], y0 = logEP.tab$Qst_ci_ll,
        x1 = mp[1, 1], y1 = logEP.tab$Qst_ci_ul,
@@ -2281,5 +2797,8 @@ axis(side = 1, at = mp,
      cex = 1)
 text(x = 1, y = 0.4, expression(italic("Q"[st])>italic("F"[st])),
      cex = 1.5)
+
+##dev.off()
+
 
 ```
