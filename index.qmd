@@ -192,28 +192,18 @@ merged.tab2 <- merge(merged.tab, ind.rm2, by = "match.col")
 
 tab.rm1 <- data.frame(ind = rownames(aRanSyl_genind$tab),
                       qmatrix = qmatrix)
-tab.rm1.1 <- data.frame(ind = rownames(aRanSyl_genind$tab),
-                      qmatrix = qmatrix2)
 
 tab.rm2 <- data.frame(ind = rownames(aRanSyl_genind_pops$tab),
-                      pop = aRanSyl_genind_pops$pop)
-tab.rm2.1 <- data.frame(ind = rownames(aRanSyl_genind_pops$tab),
                       pop = aRanSyl_genind_pops$pop)
 
 ## the merging below guarantees that I am removing the correct
 ## individuals from the qmatrix
 tab2 <- merge(tab.rm2, tab.rm1, by = "ind")
-tab2.1 <- merge(tab.rm2.1, tab.rm1.1, by = "ind")
-##str(tab2)
-##str(tab2.1)
 qmplot <- tab2
-qmplot2 <- tab2.1
 qmplot$pop <- as.character(qmplot$pop)
-qmplot2$pop <- as.character(qmplot2$pop)
 ##str(qmplot)
 ##str(qmplot2)
 qmplot <- qmplot[order(qmplot$pop), ]
-qmplot2 <- qmplot2[order(qmplot2$pop), ]
 ##aggregate(qmplot$ind, list(qmplot$pop), length)
 
 
@@ -418,174 +408,6 @@ text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
 
 
 ##dev.off()
-
-```
-
-
-```{r, fig.height = 7, fig.width = 7, fig.align = "center", message = FALSE, warning = FALSE, echo = FALSE, include = FALSE}
-
-
-## this is what would happen if we select K = 2 in the strcuture analysis
-
-layout(matrix(c(1, 1, 1, 1, 1, 1,
-                1, 1, 1, 1, 1, 1,
-                2, 2, 2, 2, 2, 2,
-                2, 2, 2, 2, 2, 2), ncol = 6, nrow = 4, byrow = TRUE))
-
-
-barplot(t(qmplot2[3:4]), col = c("gray", "brown"), border = "white", space = 0,
-        xlab = "", xaxt = "n",  ylab = "Admixture proportion",
-        las = 1, cex.lab = 1.4)
-
-## adding population labels to the axis:
-
-medians <- c()
-
-for(i in 1:length(qmplot2$pop)){
-    
-    axis(1, at = median(which(qmplot2$pop == qmplot2$pop[i])), labels = "")
-    medians <- c(medians, median(which(qmplot2$pop == qmplot2$pop[i])))
-}
-
-names <- unique(qmplot2$pop)
-
-obj <- tapply(qmplot2$ind, qmplot2$pop, length)
-obj
-
-segments(x0 = 0, y0 = 0.01,
-         x1 = 0, y1 = 1, lty = 2, lwd = 2)
-
-for(i in 1:length(obj)){
-    sum <- sum(obj[1:i])
-    ##print(sum)
-    segments(x0 = sum, y0 = 0.01,
-             x1 = sum, y1 = 1, lty = 2, lwd = 2,
-             col = "blue")
-}
-
-text(x = as.numeric(unique(as.character(medians))), y = par("usr")[3] - 0.06,
-     labels = unique(qmplot2$pop), xpd = NA, srt = 35, cex = 0.5, adj = 1)
-
-mtext("Pond", side = 1, line = 2)
-
-load("/Users/dpadil10/ASU Dropbox/Dylan Padilla/Yale/YMF2018/data/aRanSyl_fst.RData")
-aRanSyl_fst_mat <- as.matrix(aRanSyl_fst)
-aRanSyl_fst_mat[aRanSyl_fst_mat < 0] <- 0
-aRanSyl_fst_mat[1:4, 1:4]
-
-## creating heatmap to plot genetic differentiation between
-## populations
-
-get_lower_tri<-function(cor_matrix){
-  cor_matrix[lower.tri(cor_matrix, diag = TRUE)]
-  return(cor_matrix)
-}
-
-lower_tri_matrix <- aRanSyl_fst_mat[lower.tri(round(aRanSyl_fst_mat, 2),
-                                              diag = TRUE)]
-my_palette <- colorRampPalette(c("lightblue", "red"))(n = 100)
-
-## create matrix
-
-fst_matrix <- matrix(NA, nrow = 19, ncol = 19)
-fst_matrix[lower.tri(fst_matrix, diag = TRUE)] <- round(lower_tri_matrix, 2)
-labs <- colnames(aRanSyl_fst_mat)
-
-par(mar = c(5, 5, 2, 2))
-
-## creating the image
-## we transform the matrix so it looks like the table (Row 1 at top)
-## t() transposes it, and we reverse the columns to flip the y-axis
-
-grid_data <- t(fst_matrix[nrow(fst_matrix):1, ])
-
-## generate the heatmap colors
-
-my_colors <- colorRampPalette(c("#8ccddb", "#bf6c6c", "red"))(100)
-
-image(
-  1:19, 1:19,           # X and Y coordinates
-  grid_data,          # The data
-  axes = FALSE,       # Turn off default axes (we will draw our own)
-  col = my_colors,    # Colors
-  xlab = "", ylab = ""
-)
-
-axis(2, at = 1:19, labels = rev(labs), las = 2,
-     tick = FALSE, cex.axis = 0.6)
-axis(1, at = 1:19, labels = labs, las = 2, tick = FALSE,
-     cex.axis = 0.6, las = 1)
-
-## we loop through the original matrix to place the numbers
-
-n <- 19
-for (row in 1:n) {
-  for (col in 1:n) {
-    val <- fst_matrix[row, col]
-    
-    if (!is.na(val)) {
-      # Logic: 
-      # x coordinate = column index
-      # y coordinate = n + 1 - row index (because y=1 is the bottom)
-      text(x = col, y = n + 1 - row, labels = val, col = "black", cex = 0.6)
-    }
-  }
-}
-
-## legend settings
-
-leg_x <- 15.5       # X starting position
-leg_y <- 15.0       # Y starting position (bottom of legend)
-leg_w <- 0.5       # Width of the bar
-leg_h <- 2.5       # Height of the bar
-num_cols <- length(my_colors)
-
-## draw the gradient Bar
-## we stack tiny rectangles on top of each other
-
-for (i in 1:num_cols) {
-  y_start <- leg_y + (i - 1) * (leg_h / num_cols)
-  y_end   <- leg_y + (i) * (leg_h / num_cols)
-  rect(
-    xleft = leg_x, 
-    ybottom = y_start, 
-    xright = leg_x + leg_w, 
-    ytop = y_end, 
-    col = my_colors[i], 
-    border = NA
-  )
-}
-
-## add a black border around the legend bar
-
-rect(leg_x, leg_y, leg_x + leg_w, leg_y + leg_h, border = "black")
-
-## add Legend Text Labels (0, 0.5, 1.0)
-## we map the data range (0 to 0.83) to the legend height
-
-min_val <- 0
-max_val <- max(fst_matrix, na.rm=TRUE) # approx 0.83
-
-## label position 1 (Bottom)
-
-text(x = leg_x + leg_w + 0.2, y = leg_y, labels = min_val,
-     adj = 0, cex = 0.8)
-
-## label position 2 (Middle)
-
-text(x = leg_x + leg_w + 0.2, y = leg_y + (leg_h / 2),
-     labels = round((max_val/2), 2), adj = 0, cex = 0.8)
-
-## label position 3 (Top)
-
-text(x = leg_x + leg_w + 0.2, y = leg_y + leg_h,
-     labels = max_val, adj = 0, cex = 0.8)
-
-## add Title above legend
-
-text(x = leg_x + (leg_w/2), y = leg_y + leg_h + 1,
-     labels = expression(italic(F[st])), font = 2, cex = 1)
-
 
 ```
 
